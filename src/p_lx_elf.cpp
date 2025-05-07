@@ -1532,7 +1532,7 @@ PackLinuxElf32::buildLinuxLoader(
 //   EXP_TAIL  FIXME: unfilter
 //   SO_TAIL
 //   SO_MAIN  C-language supervision based on PT_LOADs
-        char sec[120]; memset(sec, 0, sizeof(sec));  // debug convenience
+        char sec[200]; memset(sec, 0, sizeof(sec));  // debug convenience
         int len = 0;
         unsigned m_decompr = methods_used | (1u << (0xFF & ph_forced_method(ph.method)));
         len += snprintf(sec, sizeof(sec), "%s", "SO_HEAD,ptr_NEXT,EXP_HEAD");
@@ -1584,7 +1584,7 @@ PackLinuxElf32::buildLinuxLoader(
          ||  this->e_machine==Elf32_Ehdr::EM_MIPS
          ) { // main program with ELF2 de-compressor (folded portion)
         initLoader(fold, szfold);
-        char sec[120]; memset(sec, 0, sizeof(sec));  // debug convenience
+        char sec[200]; memset(sec, 0, sizeof(sec));  // debug convenience
         int len = 0;
         unsigned m_decompr = methods_used | (1u << (0xFF & ph_forced_method(ph.method)));
         len += snprintf(sec, sizeof(sec), "%s", ".text,EXP_HEAD");
@@ -1729,7 +1729,7 @@ PackLinuxElf64::buildLinuxLoader(
 //   EXP_TAIL  FIXME: unfilter
 //   SO_TAIL
 //   SO_MAIN  C-language supervision based on PT_LOADs
-        char sec[120]; memset(sec, 0, sizeof(sec));  // debug convenience
+        char sec[200]; memset(sec, 0, sizeof(sec));  // debug convenience
         int len = 0;
         unsigned m_decompr = methods_used | (1u << (0xFF & ph_forced_method(ph.method)));
         len += snprintf(sec, sizeof(sec), "%s", "SO_HEAD,ptr_NEXT,EXP_HEAD");
@@ -1774,7 +1774,7 @@ PackLinuxElf64::buildLinuxLoader(
          ||  this->e_machine==Elf64_Ehdr::EM_PPC64
          ) { // main program with ELF2 de-compressor (folded portion)
         initLoader(fold, szfold);
-        char sec[120]; memset(sec, 0, sizeof(sec));  // debug convenience
+        char sec[200]; memset(sec, 0, sizeof(sec));  // debug convenience
         int len = 0;
         unsigned m_decompr = methods_used | (1u << (0xFF & ph_forced_method(ph.method)));
         len += snprintf(sec, sizeof(sec), "%s", ".text,EXP_HEAD");
