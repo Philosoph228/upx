@@ -74,6 +74,13 @@ jobs:
         run: |
           make -C doc clean all
           if ! git diff --quiet; then git diff || true; fi # ignore diff error
+      - name: Clean up
+        shell: bash
+        run: |
+          git ls-files -z --others --ignored --exclude-standard ./src/stub | xargs -0r rm -v --
+          find ./src/stub/src -type d -name tmp -print0 | xargs -0r rmdir -v --
+          #git status --ignored ./src/stub || true
+          git status --ignored || true
 
   job-linux-cmake: # uses cmake + make
     if: true
