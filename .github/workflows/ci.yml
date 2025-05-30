@@ -88,7 +88,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # { os: ubuntu-20.04, use_extra: true }
           - { os: ubuntu-22.04, use_extra: true, use_wine: true }
           - { os: ubuntu-24.04, use_extra: true, use_wine: true }
     name: ${{ format('{0}', matrix.os) }}
@@ -335,7 +334,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { name: windows-2019-amd64, os: windows-2019, vsversion: 2019, vsarch: amd64 }
+          # { name: windows-2019-amd64, os: windows-2019, vsversion: 2019, vsarch: amd64 }
           - { name: windows-2022-amd64, os: windows-2022, vsversion: 2022, vsarch: amd64 }
           - { name: windows-2025-amd64, os: windows-2025, vsversion: 2022, vsarch: amd64 }
     name: ${{ format('{0}', matrix.name) }}
@@ -388,13 +387,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { name: amd64-win64-vs2019,   os: windows-2019, vsversion: 2019, vsarch: amd64 }
+          # { name: amd64-win64-vs2019,   os: windows-2019, vsversion: 2019, vsarch: amd64 }
           - { name: amd64-win64-vs2022,   os: windows-2022, vsversion: 2022, vsarch: amd64 }
-          - { name: arm64-win64-vs2019,   os: windows-2019, vsversion: 2019, vsarch: amd64_arm64 }
+          # { name: arm64-win64-vs2019,   os: windows-2019, vsversion: 2019, vsarch: amd64_arm64 }
           - { name: arm64-win64-vs2022,   os: windows-2022, vsversion: 2022, vsarch: amd64_arm64 }
           - { name: arm64ec-win64-vs2022, os: windows-2022, vsversion: 2022, vsarch: amd64_arm64, cl_machine_flags: -arm64EC, link_machine_flags: '/machine:arm64ec' }
           # { name: arm64x-win64-vs2022,  os: windows-2022, vsversion: 2022, vsarch: amd64_arm64, cl_machine_flags: -arm64EC, link_machine_flags: '/machine:arm64x' }
-          - { name: i386-win32-vs2019,    os: windows-2019, vsversion: 2019, vsarch: amd64_x86 }
+          # { name: i386-win32-vs2019,    os: windows-2019, vsversion: 2019, vsarch: amd64_x86 }
           - { name: i386-win32-vs2022,    os: windows-2022, vsversion: 2022, vsarch: amd64_x86 }
     name: ${{ format('windows {0}', matrix.name) }}
     runs-on: ${{ matrix.os }}
@@ -526,7 +525,7 @@ jobs:
           - { zig_target: x86_64-windows-gnu }
     name: ${{ format('zigcc {0} {1}', matrix.zig_target, matrix.zig_pic) }}
     runs-on: ubuntu-latest
-    container: 'alpine:3.21'
+    container: 'alpine:3.22'
     #container: ${{ contains(matrix.qemu, 'qemu-ppc64') && 'alpine:3.19' || 'alpine:3.21' }}
     #container: ${{ (matrix.qemu == 'qemu-ppc64') && 'alpine:edge' || 'alpine:3.21' }}
     env:
