@@ -358,6 +358,7 @@ jobs:
             echo "UPX_CMAKE_CONFIG_FLAGS_PLATFORM=-A x64" >> $GITHUB_ENV
           elif [[ "${{ matrix.vsarch }}" == amd64_arm64 ]]; then true;
             echo "UPX_CMAKE_CONFIG_FLAGS_PLATFORM=-A ARM64" >> $GITHUB_ENV
+            echo "UPX_CONFIG_DISABLE_SELF_PACK_TEST=ON" >> $GITHUB_ENV
           elif [[ "${{ matrix.vsarch }}" == amd64_x86 ]]; then true;
             echo "UPX_CMAKE_CONFIG_FLAGS_PLATFORM=-A Win32" >> $GITHUB_ENV
           fi
@@ -387,12 +388,18 @@ jobs:
         run: |
           ctest --test-dir build/debug   --parallel 8 -C Debug
           ctest --test-dir build/release --parallel 8 -C Release
+      - name: Mimic ctest tests
+        if: ${{ matrix.vsarch != 'amd64_arm64' }}
+        shell: bash
+        run: |
+          env -C build/debug/Debug     upx_exe=./upx.exe bash "$PWD"/misc/testsuite/mimic_ctest.sh
+          env -C build/release/Release upx_exe=./upx.exe bash "$PWD"/misc/testsuite/mimic_ctest.sh
       - name: Run test suite build/release
         if: ${{ matrix.vsarch != 'amd64_arm64' }}
         shell: bash
         run: |
           export upx_testsuite_SRCDIR="$(readlink -en ../deps/upx-testsuite)"
-          env -C build/release/Release bash "$PWD"/misc/testsuite/upx_testsuite_1.sh
+          env -C build/release/Release upx_exe=./upx.exe bash "$PWD"/misc/testsuite/upx_testsuite_1.sh
 
   job-windows-toolchains: # build "by hand" using cmd.exe
     if: github.repository_owner == 'upx'
