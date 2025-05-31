@@ -336,7 +336,11 @@ jobs:
         include:
           # { name: windows-2019-amd64, os: windows-2019, vsversion: 2019, vsarch: amd64 }
           - { name: windows-2022-amd64, os: windows-2022, vsversion: 2022, vsarch: amd64 }
+          - { name: windows-2022-arm64, os: windows-2022, vsversion: 2022, vsarch: amd64_arm64 }
+          - { name: windows-2022-i386,  os: windows-2022, vsversion: 2022, vsarch: amd64_x86 }
           - { name: windows-2025-amd64, os: windows-2025, vsversion: 2022, vsarch: amd64 }
+          - { name: windows-2025-arm64, os: windows-2025, vsversion: 2022, vsarch: amd64_arm64 }
+          - { name: windows-2025-i386,  os: windows-2025, vsversion: 2022, vsarch: amd64_x86 }
     name: ${{ format('{0}', matrix.name) }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -347,12 +351,22 @@ jobs:
         run: git clone --depth=1 https://github.com/upx/upx-testsuite ../deps/upx-testsuite
       - uses: ilammy/msvc-dev-cmd@v1
         with: { vsversion: '${{ matrix.vsversion }}', arch: '${{ matrix.vsarch }}' }
+      - name: Set platform
+        shell: bash
+        run: |
+          if [[ "${{ matrix.vsarch }}" == amd64 ]]; then true;
+            echo "UPX_CMAKE_CONFIG_FLAGS_PLATFORM=-A x64" >> $GITHUB_ENV
+          elif [[ "${{ matrix.vsarch }}" == amd64_arm64 ]]; then true;
+            echo "UPX_CMAKE_CONFIG_FLAGS_PLATFORM=-A ARM64" >> $GITHUB_ENV
+          elif [[ "${{ matrix.vsarch }}" == amd64_x86 ]]; then true;
+            echo "UPX_CMAKE_CONFIG_FLAGS_PLATFORM=-A Win32" >> $GITHUB_ENV
+          fi
       - run: make build/debug
       - run: make build/release
       - name: Make artifact
         shell: bash
         run: |
-          N=$(echo "upx-${GITHUB_REF_NAME}-${GITHUB_SHA:0:7}-${{ matrix.os }}" | sed 's/[^0-9a-zA-Z_.-]/-/g')
+          N=$(echo "upx-${GITHUB_REF_NAME}-${GITHUB_SHA:0:7}-${{ matrix.name }}" | sed 's/[^0-9a-zA-Z_.-]/-/g')
           mkdir -p "tmp/artifact/$N"
           DESTDIR="$PWD/tmp/artifact/$N/InstallWithCMake/InstallWithDestdir/debug"   cmake --install build/debug   --config Debug
           DESTDIR="$PWD/tmp/artifact/$N/InstallWithCMake/InstallWithDestdir/release" cmake --install build/release --config Release
