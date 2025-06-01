@@ -334,13 +334,15 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # { name: windows-2019-amd64, os: windows-2019, vsversion: 2019, vsarch: amd64 }
-          - { name: windows-2022-amd64, os: windows-2022, vsversion: 2022, vsarch: amd64 }
-          - { name: windows-2022-arm64, os: windows-2022, vsversion: 2022, vsarch: amd64_arm64 }
-          - { name: windows-2022-i386,  os: windows-2022, vsversion: 2022, vsarch: amd64_x86 }
-          - { name: windows-2025-amd64, os: windows-2025, vsversion: 2022, vsarch: amd64 }
-          - { name: windows-2025-arm64, os: windows-2025, vsversion: 2022, vsarch: amd64_arm64 }
-          - { name: windows-2025-i386,  os: windows-2025, vsversion: 2022, vsarch: amd64_x86 }
+          # { name: windows-2019-amd64,   os: windows-2019, vsversion: 2019, vsarch: amd64 }
+          - { name: windows-2022-amd64,   os: windows-2022, vsversion: 2022, vsarch: amd64 }
+          - { name: windows-2022-arm64,   os: windows-2022, vsversion: 2022, vsarch: amd64_arm64 }
+          # { name: windows-2022-arm64ec, os: windows-2022, vsversion: 2022, vsarch: amd64_arm64, use_amd64ec: true }
+          - { name: windows-2022-i386,    os: windows-2022, vsversion: 2022, vsarch: amd64_x86 }
+          - { name: windows-2025-amd64,   os: windows-2025, vsversion: 2022, vsarch: amd64 }
+          - { name: windows-2025-arm64,   os: windows-2025, vsversion: 2022, vsarch: amd64_arm64 }
+          - { name: windows-2025-arm64ec, os: windows-2025, vsversion: 2022, vsarch: amd64_arm64, use_amd64ec: true }
+          - { name: windows-2025-i386,    os: windows-2025, vsversion: 2022, vsarch: amd64_x86 }
     name: ${{ format('{0}', matrix.name) }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -356,6 +358,9 @@ jobs:
         run: |
           if [[ "${{ matrix.vsarch }}" == amd64 ]]; then true;
             echo "UPX_CMAKE_CONFIG_FLAGS_PLATFORM=-A x64" >> $GITHUB_ENV
+          elif [[ "${{ matrix.use_amd64ec }}" == "true" ]]; then true;
+            echo "UPX_CMAKE_CONFIG_FLAGS_PLATFORM=-A ARM64EC" >> $GITHUB_ENV
+            echo "UPX_CONFIG_DISABLE_SELF_PACK_TEST=ON" >> $GITHUB_ENV
           elif [[ "${{ matrix.vsarch }}" == amd64_arm64 ]]; then true;
             echo "UPX_CMAKE_CONFIG_FLAGS_PLATFORM=-A ARM64" >> $GITHUB_ENV
             echo "UPX_CONFIG_DISABLE_SELF_PACK_TEST=ON" >> $GITHUB_ENV
