@@ -61,7 +61,7 @@ jobs:
         run: |
           export PATH="$(readlink -en ../deps/bin-upx-20221212):$PATH"
           make -C src/stub maintainer-clean extra-clean
-          git status || true
+          git status || true # make sure the stub files got deleted
           make -C src/stub extra-all all
           if ! git diff --quiet; then git diff; exit 1; fi
       - run: bash ./misc/scripts/check_whitespace_git.sh
