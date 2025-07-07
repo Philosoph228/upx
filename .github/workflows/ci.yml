@@ -554,9 +554,10 @@ jobs:
           - { zig_target: x86_64-windows-gnu }
     name: ${{ format('zigcc {0} {1}', matrix.zig_target, matrix.zig_pic) }}
     runs-on: ubuntu-latest
-    container: 'alpine:3.22'
+    #container: 'alpine:3.22'
     #container: ${{ contains(matrix.qemu, 'qemu-ppc64') && 'alpine:3.19' || 'alpine:3.21' }}
     #container: ${{ (matrix.qemu == 'qemu-ppc64') && 'alpine:edge' || 'alpine:3.21' }}
+    container: ${{ (matrix.qemu == 'qemu-aarch64') && 'alpine:3.19' || 'alpine:3.22' }}
     env:
       UPX_CONFIG_HAVE_WORKING_BUILD_RPATH: ''
       # for zig-cc wrapper scripts (see below):
