@@ -21,7 +21,8 @@ catch signal SIGSEGV
 commands
     x/i $pc
     info reg
-    x/16i $pc-0x20
+    x/32i $pc-0x20
+    quit 77
 end
 EOF
 
