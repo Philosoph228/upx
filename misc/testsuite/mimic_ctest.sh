@@ -169,7 +169,8 @@ if [[ $UPX_CONFIG_DISABLE_EXHAUSTIVE_TESTS != ON ]]; then
                 "${run_upx[@]}" -qq -d upx-packed-${s}${exe} ${fo} -o upx-unpacked-${s}${exe}
                 cmp -s upx-unpacked${exe} upx-unpacked-${s}${exe}
                 if [[ $UPX_CONFIG_DISABLE_RUN_PACKED_TEST != ON ]]; then
-                    for ((i = 0; i < 9; i++)); do
+                    : ${upx_run_packed_test:=9}
+                    for ((i = 0; i < $upx_run_packed_test; i++)); do
                         "${emu[@]}" ./upx-packed-${s}${exe} --version-short
                     done
                 fi
