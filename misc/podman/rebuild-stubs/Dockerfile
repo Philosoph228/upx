@@ -8,8 +8,8 @@ ENV LANG=C.UTF-8
 RUN dpkg --add-architecture i386 \
     && apt-get update && apt-get upgrade -y \
     && apt-get install -y --no-install-recommends \
-        aria2 bash bash-completion ca-certificates curl git less libmpc3 \
-        make ncurses-term perl-base tar time wget xz-utils \
+        aria2 bash bash-completion ca-certificates coreutils curl diffutils findutils git grep gzip \
+        less libmpc3 make ncurses-term perl-base sed tar time util-linux wget xz-utils \
         libc6:i386 zlib1g:i386 \
         # the following packages are not required for rebuilding the stubs, but
         # they do make the image *much* more convenient and also allow building

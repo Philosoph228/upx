@@ -72,9 +72,26 @@ all+test build/all+test: build/debug+test build/release+test PHONY
 
 test: $$(patsubst %+test,%,$$(.DEFAULT_GOAL))+test PHONY
 
-#
+#***********************************************************************
+# install
+#***********************************************************************
+
+build/debug+install:     $$(dir $$@)debug PHONY; cd "$(dir $@)debug" && $(CMAKE) --install . --config Debug
+build/%/debug+install:   $$(dir $$@)debug PHONY; cd "$(dir $@)debug" && $(CMAKE) --install . --config Debug
+build/release+install:   $$(dir $$@)release PHONY; cd "$(dir $@)release" && $(CMAKE) --install . --config Release
+build/%/release+install: $$(dir $$@)release PHONY; cd "$(dir $@)release" && $(CMAKE) --install . --config Release
+build/%/all+install:     $$(dir $$@)debug+install $$(dir $$@)release+install PHONY ;
+
+# shortcuts
+debug+install:   build/debug+install PHONY
+release+install: build/release+install PHONY
+all+install build/all+install: build/debug+install build/release+install PHONY
+
+install: $$(patsubst %+install,%,$$(.DEFAULT_GOAL))+install PHONY
+
+#***********************************************************************
 # END of Makefile
-#
+#***********************************************************************
 
 # extra pre-defined build configurations and some utility; optional
 -include ./Makevars-local.mk

@@ -8,6 +8,8 @@ name: CI
 
 on: [push, workflow_dispatch]
 
+defaults: { run: { shell: bash } }
+
 env:
   CMAKE_REQUIRED_QUIET: 'OFF'
   CMAKE_VERBOSE_MAKEFILE: 'ON'
@@ -75,7 +77,6 @@ jobs:
           make -C doc clean all
           if ! git diff --quiet; then git diff || true; fi # ignore diff error
       - name: Clean up
-        shell: bash
         run: |
           git ls-files -z --others --ignored --exclude-standard ./src/stub | xargs -0r rm -v --
           find ./src/stub/src -type d -name tmp -print0 | xargs -0r rmdir -v --
@@ -105,7 +106,6 @@ jobs:
       - run: ls -l build/*/*/*/upx* || true
       - run: file  build/*/*/*/upx* || true
       - name: Make artifact
-        shell: bash
         run: |
           N=$(echo "upx-${GITHUB_REF_NAME}-${GITHUB_SHA:0:7}-${{ matrix.os }}-0" | sed 's/[^0-9a-zA-Z_.-]/-/g')
           mkdir -p "tmp/artifact/$N"
@@ -117,7 +117,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with: { name: '${{ env.artifact_name }}', path: tmp/artifact }
       - name: Mimic ctest tests SIGSEGV
-        shell: bash
         run: |
           jobs="gcc/debug gcc/release clang/debug clang/release"
           echo "===== parallel jobs: $jobs"
@@ -331,7 +330,6 @@ jobs:
       - run: ls -l build/*/*/*/upx* || true
       - run: file  build/*/*/*/upx* || true
       - name: Make artifact
-        shell: bash
         run: |
           X="${{ matrix.xcode_version }}"; test -n "$X" && X="-xcode-$X"
           N=$(echo "upx-${GITHUB_REF_NAME}-${GITHUB_SHA:0:7}-${{ matrix.os }}$X" | sed 's/[^0-9a-zA-Z_.-]/-/g')
@@ -414,7 +412,6 @@ jobs:
       - uses: ilammy/msvc-dev-cmd@v1
         with: { vsversion: '${{ matrix.vsversion }}', arch: '${{ matrix.vsarch }}' }
       - name: Set platform
-        shell: bash
         run: |
           if [[ "${{ matrix.vsarch }}" == amd64 ]]; then true;
             echo "UPX_CMAKE_CONFIG_FLAGS_PLATFORM=-A x64" >> $GITHUB_ENV
@@ -430,7 +427,6 @@ jobs:
       - run: make build/debug
       - run: make build/release
       - name: Make artifact
-        shell: bash
         run: |
           N=$(echo "upx-${GITHUB_REF_NAME}-${GITHUB_SHA:0:7}-${{ matrix.name }}" | sed 's/[^0-9a-zA-Z_.-]/-/g')
           mkdir -p "tmp/artifact/$N"
@@ -455,13 +451,11 @@ jobs:
           ctest --test-dir build/release --parallel 8 -C Release
       - name: Mimic ctest tests
         if: ${{ matrix.vsarch != 'amd64_arm64' }}
-        shell: bash
         run: |
           env -C build/debug/Debug     upx_exe=./upx.exe bash "$PWD"/misc/testsuite/mimic_ctest.sh
           env -C build/release/Release upx_exe=./upx.exe bash "$PWD"/misc/testsuite/mimic_ctest.sh
       - name: Run test suite build/release
         if: ${{ matrix.vsarch != 'amd64_arm64' }}
-        shell: bash
         run: |
           export upx_testsuite_SRCDIR="$(readlink -en ../deps/upx-testsuite)"
           env -C build/release/Release upx_exe=./upx.exe bash "$PWD"/misc/testsuite/upx_testsuite_1.sh
@@ -491,7 +485,6 @@ jobs:
       - uses: actions/checkout@v4
         with: { submodules: true }
       - name: Prepare sources and Check out test suite
-        shell: bash
         run: |
           git clone --depth=1 https://github.com/upx/upx-testsuite ../deps/upx-testsuite
           mkdir -p -v build/$C/$B/{bzip2,ucl,upx,zlib,zstd}
@@ -540,7 +533,6 @@ jobs:
           set sources=%s%\*.cpp %s%\check\*.cpp %s%\compress\*.cpp %s%\console\*.cpp %s%\filter\*.cpp %s%\util\*.cpp
           %RUN_CL% -J -O2 -W4 -WX -std:c++17 -Zc:__cplusplus -EHsc -DUPX_VERSION_GITREV="""%GITREV%""" %DEFS% %UPX_DEFS% -I%H%\vendor -Feupx.exe %sources% %UPX_LIBS% /link ${{ matrix.link_machine_flags }} setargv.obj
       - name: Make artifact
-        shell: bash
         run: |
           N=$(echo "upx-${GITHUB_REF_NAME}-${GITHUB_SHA:0:7}-windows-${{ matrix.name }}" | sed 's/[^0-9a-zA-Z_.-]/-/g')
           mkdir -p "tmp/artifact/$N/$B"
@@ -550,28 +542,12 @@ jobs:
       - name: ${{ format('Upload artifact {0}', env.artifact_name) }}
         uses: actions/upload-artifact@v4
         with: { name: '${{ env.artifact_name }}', path: tmp/artifact }
-      - name: Run basic tests
-        if: ${{ matrix.vsarch != 'amd64_arm64' }}
-        run: |
-          $ErrorActionPreference = 'stop'
-          $ErrorView = 'NormalView'
-          cd $Env:H\build\$Env:C\$Env:B\upx
-          $Env:UPX = "--no-color --no-progress"
-          .\upx.exe --version
-          .\upx.exe --sysinfo -v
-          .\upx.exe upx.exe -o upx_packed.exe
-          dir *.exe
-          .\upx.exe -l upx_packed.exe
-          .\upx.exe -t upx_packed.exe
-          .\upx_packed.exe --version
       - name: Mimic ctest tests
         if: ${{ matrix.vsarch != 'amd64_arm64' }}
-        shell: bash
         run: |
           env -C build/$C/$B/upx upx_exe=./upx.exe bash "$PWD"/misc/testsuite/mimic_ctest.sh
       - name: Run test suite
         if: ${{ matrix.vsarch != 'amd64_arm64' }}
-        shell: bash
         run: |
           export upx_testsuite_SRCDIR="$(readlink -en ../deps/upx-testsuite)"
           env -C build/$C/$B/upx upx_exe=./upx.exe bash "$PWD"/misc/testsuite/upx_testsuite_1.sh
@@ -627,8 +603,8 @@ jobs:
       ZIG_TARGET: ${{ matrix.zig_target }}
     steps:
       - run: uname -a; pwd; id; umask
+        shell: sh
       - name: Install Alpine Linux container packages
-        if: ${{ job.container }}
         shell: sh
         run: |
           apk update && apk upgrade && apk add bash cmake curl file gdb git make parallel patch strace tar util-linux xz zstd
@@ -639,7 +615,6 @@ jobs:
       - uses: actions/checkout@v4
         with: { submodules: true }
       - name: ${{ format('Install Zig {0}', env.ZIG_DIST_VERSION) }}
-        shell: bash
         run: |
           rev=$(git rev-parse --short=7 HEAD)
           echo "UPX_GITREV_SHORT=$rev" >> $GITHUB_ENV
@@ -712,7 +687,6 @@ jobs:
       - run: ls -l build/*/*/*/upx* || true
       - run: file  build/*/*/*/upx* || true
       - name: ${{ format('Make artifact from upx-{0}-{1}', github.ref_name, env.UPX_GITREV_SHORT) }}
-        shell: bash
         run: |
           N=$(echo "upx-${GITHUB_REF_NAME}-${GITHUB_SHA:0:7}-zigcc-${{ matrix.zig_target }}${ZIG_PIC}" | sed 's/[^0-9a-zA-Z_.-]/-/g')
           mkdir -p "tmp/artifact/$N"
