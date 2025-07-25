@@ -8678,7 +8678,7 @@ Elf32_Sym const *PackLinuxElf32::elf_lookup(char const *name) const
                 if (l_sym <= &dynsym[n_visit++])
                     throwCantPack("circular DT_HASH chain %d\n", si);
                 // Detect next si out-of-bounds
-                if (((unsigned int const *)EOM - chains) <= si)
+                if ((unsigned)((unsigned int const *)EOM - chains) <= si)
                     throwCantPack("bad DT_HASH chain %d\n", si);
             }
         }
@@ -8783,7 +8783,7 @@ Elf64_Sym const *PackLinuxElf64::elf_lookup(char const *name) const
                 if (l_sym <= &dynsym[n_visit++])
                     throwCantPack("circular DT_HASH chain %d\n", si);
                 // Detect next si out-of-bounds
-                if (((unsigned int const *)EOM - chains) <= si)
+                if ((unsigned)((unsigned int const *)EOM - chains) <= si)
                     throwCantPack("bad DT_HASH chain %d\n", si);
             }
         }
