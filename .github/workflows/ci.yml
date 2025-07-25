@@ -98,11 +98,9 @@ jobs:
     steps:
       - run: uname -a; pwd; id; umask
       - run: sudo apt-get update
-      - run: sudo apt-get install -y gdb parallel valgrind
-      - name: dmidecode
-        run: |
-          sudo apt-get install -y dmidecode
-          sudo dmidecode
+      - run: sudo apt-get install -y dmidecode gdb parallel valgrind
+      - run: sudo dmidecode -q
+      - run: sudo dmidecode
       - uses: actions/checkout@v4
         with: { submodules: true }
       - run: make build/extra/gcc/all
@@ -157,6 +155,7 @@ jobs:
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update && sudo apt-get upgrade -y
+          sudo apt-get install -y dmidecode gdb libc6-dbg:i386 parallel valgrind
           sudo apt-get install -y g++-multilib g++-mingw-w64-i686 g++-mingw-w64-x86-64
           # make sure that we use posix-threads (pthread/winpthreads) and NOT win32-threads
           for f in i686-w64-mingw32-g++ i686-w64-mingw32-gcc x86_64-w64-mingw32-g++ x86_64-w64-mingw32-gcc; do
@@ -164,12 +163,10 @@ jobs:
             ls -l /usr/bin/${f}*
           done
           ls -l /etc/alternatives/*mingw* || true
-          sudo apt-get install -y libc6-dbg:i386 valgrind
-      - name: dmidecode
+      - run: sudo dmidecode -q
         if: ${{ matrix.use_extra }}
-        run: |
-          sudo apt-get install -y dmidecode
-          sudo dmidecode
+      - run: sudo dmidecode
+        if: ${{ matrix.use_extra }}
       - name: Install Wine
         if: ${{ matrix.use_extra && matrix.use_wine }}
         run: |
