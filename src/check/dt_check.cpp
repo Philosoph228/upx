@@ -1117,10 +1117,10 @@ void upx_compiler_sanity_check(void) noexcept {
         static_assert(upx::compile_time::get_le24(d) == 0xfdfeff);
         static_assert(upx::compile_time::get_le32(d) == 0xfcfdfeff);
         static_assert(upx::compile_time::get_le64(d) == 0xf8f9fafbfcfdfeffULL);
-        const N_BELE_RTP::AbstractPolicy *bele;
         assert_noexcept(upx_adler32(d, 4) == 0x09f003f7);
         assert_noexcept(upx_adler32(d, 4, 0) == 0x09ec03f6);
         assert_noexcept(upx_adler32(d, 4, 1) == 0x09f003f7);
+        const N_BELE_RTP::AbstractPolicy *bele;
         bele = &N_BELE_RTP::be_policy;
         assert_noexcept(get_be16(d) == 0xfffe);
         assert_noexcept(bele->get16(d) == 0xfffe);

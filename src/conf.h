@@ -141,7 +141,7 @@ inline constexpr bool upx_is_integral_v = upx_is_integral<T>::value;
 #define upx_fake_alignas_16   __attribute__((__aligned__(2))) // object file maximum 2 ???
 #define upx_fake_alignas__(x) upx_fake_alignas_##x
 #define alignas(x)            upx_fake_alignas__(x)
-#define upx_alignas_max       upx_fake_alignas_4
+#define upx_alignas_max       upx_fake_alignas_2
 #endif
 #ifndef upx_alignas_max
 #define upx_alignas_max alignas(std::max_align_t)
@@ -197,11 +197,7 @@ struct alignas(1) upx_charptr_unit_type final { char hidden__; };
 static_assert(sizeof(upx_charptr_unit_type) == 1);
 
 // using the system off_t was a bad idea even back in 199x...
-#if (__SIZEOF_INT128__ == 16) && 0
-typedef upx_int128_t upx_off_t;
-#else
 typedef long long upx_off_t;
-#endif
 #undef off_t
 #if 0
 // TODO later cleanup: at some future point we can do this:
@@ -234,7 +230,7 @@ typedef long long upx_off_t;
 #define very_likely           __acc_very_likely
 #define very_unlikely         __acc_very_unlikely
 
-// cosmetic: explicitly annotate some functions which may throw exceptions
+// cosmetic: explicitly annotate some functions which may throw exceptions;
 //   note that noexcept(false) is the default for all C++ functions anyway
 #define may_throw noexcept(false)
 

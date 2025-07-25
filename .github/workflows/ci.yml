@@ -99,6 +99,10 @@ jobs:
       - run: uname -a; pwd; id; umask
       - run: sudo apt-get update
       - run: sudo apt-get install -y gdb parallel valgrind
+      - name: dmidecode
+        run: |
+          sudo apt-get install -y dmidecode
+          sudo dmidecode
       - uses: actions/checkout@v4
         with: { submodules: true }
       - run: make build/extra/gcc/all
@@ -161,6 +165,11 @@ jobs:
           done
           ls -l /etc/alternatives/*mingw* || true
           sudo apt-get install -y libc6-dbg:i386 valgrind
+      - name: dmidecode
+        if: ${{ matrix.use_extra }}
+        run: |
+          sudo apt-get install -y dmidecode
+          sudo dmidecode
       - name: Install Wine
         if: ${{ matrix.use_extra && matrix.use_wine }}
         run: |
