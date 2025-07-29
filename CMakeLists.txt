@@ -31,7 +31,7 @@ endif()
 include("${CMAKE_CURRENT_SOURCE_DIR}/misc/cmake/functions.cmake")
 upx_print_var(CMAKE_VERSION UPX_CONFIG_CMAKE_MINIMUM_REQUIRED_VERSION CMAKE_GENERATOR)
 upx_print_var(CMAKE_GENERATOR_TOOLSET CMAKE_GENERATOR_PLATFORM)
-upx_print_env_var(CC CXX)
+upx_print_env_var(CC CXX CPPFLAGS CFLAGS CXXFLAGS)
 
 #***********************************************************************
 # options
@@ -469,6 +469,7 @@ if(NOT CMAKE_CROSSCOMPILING OR CMAKE_CROSSCOMPILING_EMULATOR)
         # IMPORTANT NOTE: these tests can only work if the host executable format
         #   is supported by UPX!
         include("${CMAKE_CURRENT_SOURCE_DIR}/misc/cmake/self_pack_test.cmake")
+        upx_self_pack_test()
     endif()
 endif()
 
