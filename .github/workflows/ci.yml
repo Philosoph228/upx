@@ -413,11 +413,11 @@ jobs:
           # { name: windows-2019-amd64,   os: windows-2019, vsversion: 2019, vsarch: amd64 }
           - { name: windows-2022-amd64,   os: windows-2022, vsversion: 2022, vsarch: amd64 }
           - { name: windows-2022-arm64,   os: windows-2022, vsversion: 2022, vsarch: amd64_arm64 }
-          # { name: windows-2022-arm64ec, os: windows-2022, vsversion: 2022, vsarch: amd64_arm64, use_amd64ec: true }
+          # { name: windows-2022-arm64ec, os: windows-2022, vsversion: 2022, vsarch: amd64_arm64, use_arm64ec: true }
           - { name: windows-2022-i386,    os: windows-2022, vsversion: 2022, vsarch: amd64_x86 }
           - { name: windows-2025-amd64,   os: windows-2025, vsversion: 2022, vsarch: amd64 }
           - { name: windows-2025-arm64,   os: windows-2025, vsversion: 2022, vsarch: amd64_arm64 }
-          - { name: windows-2025-arm64ec, os: windows-2025, vsversion: 2022, vsarch: amd64_arm64, use_amd64ec: true }
+          - { name: windows-2025-arm64ec, os: windows-2025, vsversion: 2022, vsarch: amd64_arm64, use_arm64ec: true }
           - { name: windows-2025-i386,    os: windows-2025, vsversion: 2022, vsarch: amd64_x86 }
     name: ${{ format('{0}', matrix.name) }}
     runs-on: ${{ matrix.os }}
@@ -433,7 +433,7 @@ jobs:
         run: |
           if [[ "${{ matrix.vsarch }}" == amd64 ]]; then true;
             echo "UPX_CMAKE_CONFIG_FLAGS_PLATFORM=-A x64" >> $GITHUB_ENV
-          elif [[ "${{ matrix.use_amd64ec }}" == "true" ]]; then true;
+          elif [[ "${{ matrix.use_arm64ec }}" == "true" ]]; then true;
             echo "UPX_CMAKE_CONFIG_FLAGS_PLATFORM=-A ARM64EC" >> $GITHUB_ENV
             echo "UPX_CONFIG_DISABLE_SELF_PACK_TEST=ON" >> $GITHUB_ENV
           elif [[ "${{ matrix.vsarch }}" == amd64_arm64 ]]; then true;
@@ -444,6 +444,8 @@ jobs:
           fi
       - run: make build/debug
       - run: make build/release
+      - run: shopt -s globstar; ls -ld build/**/upx* || true
+      - run: shopt -s globstar; file   build/**/upx* || true
       - name: Make artifact
         run: |
           N=$(echo "upx-${GITHUB_REF_NAME}-${GITHUB_SHA:0:7}-${{ matrix.name }}" | sed 's/[^0-9a-zA-Z_.-]/-/g')
@@ -550,6 +552,8 @@ jobs:
           @rem set UPX_LIBS=%BDIR%\bzip2\bzip2.lib %BDIR%\ucl\ucl.lib %BDIR%\zlib\zlib.lib %BDIR%\zstd\zstd.lib
           set sources=%s%\*.cpp %s%\check\*.cpp %s%\compress\*.cpp %s%\console\*.cpp %s%\filter\*.cpp %s%\util\*.cpp
           %RUN_CL% -J -O2 -W4 -WX -std:c++17 -Zc:__cplusplus -EHsc -DUPX_VERSION_GITREV="""%GITREV%""" %DEFS% %UPX_DEFS% -I%H%\vendor -Feupx.exe %sources% %UPX_LIBS% /link ${{ matrix.link_machine_flags }} setargv.obj
+      - run: shopt -s globstar; ls -ld build/**/upx* || true
+      - run: shopt -s globstar; file   build/**/upx* || true
       - name: Make artifact
         run: |
           N=$(echo "upx-${GITHUB_REF_NAME}-${GITHUB_SHA:0:7}-windows-${{ matrix.name }}" | sed 's/[^0-9a-zA-Z_.-]/-/g')
@@ -580,7 +584,7 @@ jobs:
           # only build a few selected targets => more targets are tested in the Weekly CI
           - { zig_target: aarch64-linux-musl, qemu: qemu-aarch64 }
           - { zig_target: aarch64-linux-musl, qemu: qemu-aarch64, zig_pic: -fPIE, container: 'alpine:3.18' }
-          - { zig_target: aarch64-macos.13.0-none }
+          - { zig_target: aarch64-macos-none }
           - { zig_target: aarch64-windows-gnu }
           - { zig_target: arm-linux-musleabihf, qemu: qemu-arm }
           - { zig_target: armeb-linux-musleabihf, qemu: qemu-armeb }
@@ -589,9 +593,9 @@ jobs:
           - { zig_target: i386-linux-musl, zig_flags: -march=i586, qemu: qemu-i386 }
           - { zig_target: i386-linux-musl, zig_flags: -march=i586, qemu: qemu-i386, zig_pic: -fPIE }
           - { zig_target: i386-windows-gnu }
-          - { zig_target: mips-linux-musleabi, zig_flags: -msoft-float, qemu: qemu-mips }
+          - { zig_target: mips-linux-musleabi, qemu: qemu-mips }
           - { zig_target: mips-linux-musleabihf, qemu: qemu-mips }
-          - { zig_target: mipsel-linux-musleabi, zig_flags: -msoft-float, qemu: qemu-mipsel }
+          - { zig_target: mipsel-linux-musleabi, qemu: qemu-mipsel }
           - { zig_target: mipsel-linux-musleabihf, qemu: qemu-mipsel }
           # { zig_target: mips-linux-musleabi-mips32r2, zig_flags: -march=mips32r2, qemu: qemu-mips }
           # { zig_target: mips-linux-musleabi-mips32r3, zig_flags: -march=mips32r3, qemu: qemu-mips }
@@ -606,14 +610,10 @@ jobs:
           - { zig_target: x86_64-linux-gnu.2.17, qemu: qemu-x86_64 }  # can use QEMU because of gcompat
           - { zig_target: x86_64-linux-musl, qemu: qemu-x86_64 }
           - { zig_target: x86_64-linux-musl, qemu: qemu-x86_64, zig_pic: -fPIE, container: 'alpine:3.18' }
-          - { zig_target: x86_64-macos.13.0-none }
+          - { zig_target: x86_64-macos-none }
           - { zig_target: x86_64-windows-gnu }
     name: ${{ format('zigcc {0} {1}', matrix.zig_target, matrix.zig_pic) }}
     runs-on: ubuntu-latest
-    #container: 'alpine:3.22'
-    #container: ${{ contains(matrix.qemu, 'qemu-ppc64') && 'alpine:3.19' || 'alpine:3.22' }}
-    #container: ${{ (matrix.qemu == 'qemu-ppc64') && 'alpine:edge' || 'alpine:3.22' }}
-    #container: ${{ (matrix.qemu == 'qemu-aarch64' && matrix.zig_pic == '-fPIE') && 'alpine:3.18' || 'alpine:3.22' }}
     container: ${{ matrix.container || 'alpine:3.22' }}
     env:
       container: ${{ matrix.container || 'alpine:3.22' }}
