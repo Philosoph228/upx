@@ -519,6 +519,17 @@ protected:
         void build(char *base, unsigned newoffs);
         unsigned getsize() const { return size; }
     };
+
+    struct alignas(1) DebugDir final {
+        LE32 flags, date_time, version;
+        LE32 type;
+        LE32 size;
+        LE32 rva;
+        LE32 fpos;
+    };
+    enum { IMAGE_DEBUG_TYPE_EX_DLLCHARACTERISTICS = 20 };
+    enum { IMAGE_DLLCHARACTERISTICS_EX_CET_COMPAT = 0x001 };
+    struct DebugDir *dbgCET;
 };
 
 class PeFile32 : public PeFile {
