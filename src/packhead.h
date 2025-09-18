@@ -39,11 +39,12 @@ struct PackHeader final {
     ~PackHeader() noexcept = default;
 
     void reset() noexcept;
+    int set_method(int m, unsigned offset = 0); // check, then assign
+
+    int getPackHeaderSize() const;
 
     void putPackHeader(SPAN_S(byte) p) const;
     bool decodePackHeaderFromBuf(SPAN_S(const byte) b, int blen);
-
-    int getPackHeaderSize() const;
 
     // fields stored in compressed file => see stub/src/include/header.S
     // enum { magic = UPX_MAGIC_LE32 };
@@ -63,7 +64,6 @@ struct PackHeader final {
         int n_mru;       // specific name for filter ctojr
     };
     int header_checksum;
-    int set_method(int m, unsigned offset = 0); // check, then assign
 
     // support fields for verifying decompression
     unsigned saved_u_adler;

@@ -296,6 +296,7 @@ jobs:
           - { os: macos-14, gcc: gcc-13, gxx: g++-13, testsuite: true }
           # { os: macos-15, gcc: gcc-14, gxx: g++-14, testsuite: true }
           - { os: macos-15, testsuite: true }
+          - { os: macos-26, gcc: gcc-15, gxx: g++-15, testsuite: true }
     name: ${{ format('{0} {1}{2}', matrix.os, matrix.xcode_version && 'xcode-' || '',  matrix.xcode_version) }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -320,7 +321,7 @@ jobs:
           echo "UPX_DEBUG_FORCE_PACK_MACOS=1" >> $GITHUB_ENV
           case "${{ matrix.os }}" in
             # TODO FIXME: UPX on macos-13+ is broken => disable run-packed for now
-            macos-1[345]) echo "UPX_CONFIG_DISABLE_RUN_PACKED_TEST=ON" >> $GITHUB_ENV ;;
+            macos-[12][3456]*) echo "UPX_CONFIG_DISABLE_RUN_PACKED_TEST=ON" >> $GITHUB_ENV ;;
           esac
       - uses: actions/checkout@v5
         with: { submodules: true }

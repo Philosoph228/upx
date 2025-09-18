@@ -529,7 +529,7 @@ protected:
     };
     enum { IMAGE_DEBUG_TYPE_EX_DLLCHARACTERISTICS = 20 };
     enum { IMAGE_DLLCHARACTERISTICS_EX_CET_COMPAT = 0x001 };
-    struct DebugDir *dbgCET;
+    struct DebugDir *dbgCET = nullptr;
 };
 
 class PeFile32 : public PeFile {
