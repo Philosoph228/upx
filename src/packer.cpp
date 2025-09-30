@@ -857,9 +857,9 @@ void Packer::relocateLoader() {
 }
 
 /*************************************************************************
-//      void Packer::compressWithFilters():
-// Try compression with several methods and filters, choose the best
-/  or first working one. Needs buildLoader().
+// void Packer::compressWithFilters():
+//   Try compression with several methods and filters, choose the best
+//   or first working one. Needs buildLoader().
 //
 // Required inputs:
 //   this->ph

@@ -262,7 +262,7 @@ ASSERT_SAME_TYPE(short, upx_int16_t);
 ASSERT_SAME_TYPE(unsigned short, upx_uint16_t);
 ASSERT_SAME_TYPE(int, upx_int32_t);
 ASSERT_SAME_TYPE(unsigned, upx_uint32_t);
-#if (__SIZEOF_LONG_LONG__ + 0 < 128)
+#if (__SIZEOF_LONG_LONG__ + 0 < 16)
 ASSERT_SAME_TYPE(long long, upx_int64_t);
 ASSERT_SAME_TYPE(unsigned long long, upx_uint64_t);
 #endif

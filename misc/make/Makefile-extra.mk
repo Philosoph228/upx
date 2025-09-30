@@ -281,6 +281,7 @@ build/analyze/clang-tidy/debug build/analyze/clang-tidy/release: build/analyze/c
 build/analyze/clang-tidy/debug build/analyze/clang-tidy/release: build/analyze/clang-tidy-ucl/$$(notdir $$@)
 build/analyze/clang-tidy/debug build/analyze/clang-tidy/release: build/analyze/clang-tidy-zlib/$$(notdir $$@)
 build/analyze/clang-tidy/debug build/analyze/clang-tidy/release: build/analyze/clang-tidy-zstd/$$(notdir $$@)
+build/analyze/clang-tidy/debug build/analyze/clang-tidy/release: PHONY
 
 # OLD names [deprecated]
 build/extra/scan-build/debug:   build/analyze/clang-analyzer/debug PHONY
@@ -380,3 +381,5 @@ $(foreach 1,$(SUBMODULES),$(if $(wildcard vendor/$1/[CL]*),,\
     $(error ERROR: missing git submodule '$1'; run 'git submodule update --init')))
 
 endif # UPX_MAKEFILE_EXTRA_MK_INCLUDED
+
+# vim:set ts=8 sw=8 noet:

@@ -119,7 +119,7 @@ static_assert((char) (-1) == 255);             // -funsigned-char
 #define upx_std_atomic(Type) Type
 #define upx_std_once_flag    upx_std_atomic(size_t)
 template <class NoexceptCallable>
-inline void upx_std_call_once(upx_std_once_flag &flag, NoexceptCallable &&f) {
+inline void upx_std_call_once(upx_std_once_flag &flag, NoexceptCallable &&f) noexcept {
     if (__acc_unlikely(!flag)) {
         flag = 1;
         f();
@@ -809,7 +809,7 @@ extern const char *progname;
 bool main_set_exit_code(int ec);
 int main_get_options(int argc, char **argv);
 void main_get_envoptions();
-int upx_main(int argc, char *argv[]) may_throw;
+noinline int upx_main(int argc, char *argv[]) may_throw;
 
 // msg.cpp
 void printSetNl(int need_nl) noexcept;
@@ -826,8 +826,8 @@ void infoHeader();
 void infoWriting(const char *what, upx_int64_t size);
 
 // work.cpp
-void do_one_file(const char *iname, char *oname) may_throw;
-int do_files(int i, int argc, char *argv[]) may_throw;
+noinline void do_one_file(const char *iname, char *oname) may_throw;
+noinline int do_files(int i, int argc, char *argv[]) may_throw;
 
 // help.cpp
 extern const char gitrev[];

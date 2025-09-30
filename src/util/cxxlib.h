@@ -477,7 +477,6 @@ forceinline constexpr T wrapping_add(const T &a, const T &b) noexcept {
     typedef std::make_unsigned_t<T> U;
     return T(U(a) + U(b));
 }
-
 template <class T>
 forceinline constexpr T wrapping_sub(const T &a, const T &b) noexcept {
     static_assert(std::is_integral_v<T>);

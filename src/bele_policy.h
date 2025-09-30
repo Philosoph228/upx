@@ -135,7 +135,7 @@ struct BEPolicy final
     S u32_compare_signed(const void *a, const void *b) C { return be32_compare_signed(a, b); }
     S u64_compare_signed(const void *a, const void *b) C { return be64_compare_signed(a, b); }
 
-    static void compileTimeAssertions() {
+    static void compileTimeAssertions() noexcept {
         COMPILE_TIME_ASSERT(sizeof(U16) == 2)
         COMPILE_TIME_ASSERT(sizeof(U32) == 4)
         COMPILE_TIME_ASSERT(sizeof(U64) == 8)
@@ -194,7 +194,7 @@ struct LEPolicy final
     S u32_compare_signed(const void *a, const void *b) C { return le32_compare_signed(a, b); }
     S u64_compare_signed(const void *a, const void *b) C { return le64_compare_signed(a, b); }
 
-    static void compileTimeAssertions() {
+    static void compileTimeAssertions() noexcept {
         COMPILE_TIME_ASSERT(sizeof(U16) == 2)
         COMPILE_TIME_ASSERT(sizeof(U32) == 4)
         COMPILE_TIME_ASSERT(sizeof(U64) == 8)

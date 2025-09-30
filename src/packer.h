@@ -248,7 +248,7 @@ protected:
     int patch_le32(void *b, int blen, const void *old, unsigned new_);
     void checkPatch(void *b, int blen, int boff, int size);
 
-    // relocation util
+    // relocation util [see packer_r.cpp]
     static unsigned optimizeReloc(unsigned relocnum, SPAN_P(byte) relocs, SPAN_S(byte) out,
                                   SPAN_P(byte) image, unsigned image_size, int bits, bool bswap,
                                   int *big);

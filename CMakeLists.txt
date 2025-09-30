@@ -57,8 +57,8 @@ endif()
 
 # test config options (see below)
 # IMPORTANT NOTE: self-pack test can only work if the host executable format is supported by UPX!
-option(UPX_CONFIG_DISABLE_SELF_PACK_TEST   "Do not test packing UPX with itself" OFF)
-option(UPX_CONFIG_DISABLE_EXHAUSTIVE_TESTS "Do not run exhaustive tests"         OFF)
+option(UPX_CONFIG_DISABLE_SELF_PACK_TEST   "Do not test packing UPX with itself." OFF)
+option(UPX_CONFIG_DISABLE_EXHAUSTIVE_TESTS "Do not run exhaustive tests."         OFF)
 
 #***********************************************************************
 # init
