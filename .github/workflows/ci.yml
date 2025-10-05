@@ -23,7 +23,8 @@ env:
   UPX_DEBUG_TEST_LIBC_QSORT: 1
   ZSTD_CLEVEL: 17
   # 2025-08-19
-  ZIG_DIST_VERSION: 0.15.1
+  #ZIG_DIST_VERSION: 0.15.1
+  ZIG_DIST_VERSION: zig-0.16.0-dev.600+12ed0ff1e
 
 jobs:
   job-rebuild-and-verify-stubs:
@@ -656,9 +657,9 @@ jobs:
           ZIG_DIST_VERSION=${ZIG_DIST_VERSION/#zig-/}
           ZIG_DIST_NAME=zig-linux-x86_64-${ZIG_DIST_VERSION}
           ZIG_DIST_NAME=zig-x86_64-linux-${ZIG_DIST_VERSION}
-          #curl -sS -L -O https://ziglang.org/builds/${ZIG_DIST_NAME}.tar.xz
+          curl -sS -L -O https://ziglang.org/builds/${ZIG_DIST_NAME}.tar.xz
           #curl -sS -L -O https://ziglang.org/download/0.14.1/${ZIG_DIST_NAME}.tar.xz
-          curl -sS -L -O https://ziglang.org/download/0.15.1/${ZIG_DIST_NAME}.tar.xz
+          #curl -sS -L -O https://ziglang.org/download/0.15.1/${ZIG_DIST_NAME}.tar.xz
           ls -l ${ZIG_DIST_NAME}.tar.xz
           file ${ZIG_DIST_NAME}.tar.xz || true
           tar -xoJf ${ZIG_DIST_NAME}.tar.xz
