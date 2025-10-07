@@ -61,7 +61,7 @@ SHORT DOCUMENTATION
 'upx program.exe' will compress a program or DLL. For best compression
 results try 'upx --best program.exe' or 'upx --brute program.exe'.
 
-Please see the file doc/upx-doc.html for the full documentation. The files
+Please see the file doc/upx-doc.txt for the full documentation. The files
 NEWS and doc/BUGS.txt also contain various tidbits of information, as
 does the output of 'upx --help'.
 

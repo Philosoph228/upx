@@ -1292,6 +1292,9 @@ void upx_compiler_sanity_check(void) noexcept {
     assert_noexcept(testNoAliasing(&u.v_int, &u.v_llong));
     assert_noexcept(testNoAliasing(&u.v_long, &u.v_llong));
 
+#if 1 && (ACC_CC_MSC) && (defined(_M_ARM64) || defined(_M_ARM64EC))
+    // @COMPILER_BUG @MSVC_BUG
+#else
     assert_noexcept(TestIntegerWrap<unsigned>::inc_gt(0));
     assert_noexcept(!TestIntegerWrap<unsigned>::inc_gt(UINT_MAX));
     assert_noexcept(TestIntegerWrap<unsigned>::dec_lt(1));
@@ -1308,6 +1311,7 @@ void upx_compiler_sanity_check(void) noexcept {
     assert_noexcept(!TestIntegerWrap<int>::neg_eq(1));
     assert_noexcept(!TestIntegerWrap<int>::neg_eq(INT_MAX));
     assert_noexcept(TestIntegerWrap<int>::neg_eq(INT_MIN)); // special case
+#endif
 }
 
 /*************************************************************************

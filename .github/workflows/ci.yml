@@ -412,15 +412,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # { name: windows-2019-amd64,   os: windows-2019, vsversion: 2019, vsarch: amd64 }
-          - { name: windows-2022-amd64,   os: windows-2022, vsversion: 2022, vsarch: amd64 }
-          - { name: windows-2022-arm64,   os: windows-2022, vsversion: 2022, vsarch: amd64_arm64 }
-          # { name: windows-2022-arm64ec, os: windows-2022, vsversion: 2022, vsarch: amd64_arm64, use_arm64ec: true }
-          - { name: windows-2022-i386,    os: windows-2022, vsversion: 2022, vsarch: amd64_x86 }
-          - { name: windows-2025-amd64,   os: windows-2025, vsversion: 2022, vsarch: amd64 }
-          - { name: windows-2025-arm64,   os: windows-2025, vsversion: 2022, vsarch: amd64_arm64 }
-          - { name: windows-2025-arm64ec, os: windows-2025, vsversion: 2022, vsarch: amd64_arm64, use_arm64ec: true }
-          - { name: windows-2025-i386,    os: windows-2025, vsversion: 2022, vsarch: amd64_x86 }
+          - { name: windows-2022-amd64,     os: windows-2022,   vsversion: 2022, vsarch: amd64 }
+          - { name: windows-2022-i386,      os: windows-2022,   vsversion: 2022, vsarch: amd64_x86 }
+          - { name: windows-2025-amd64,     os: windows-2025,   vsversion: 2022, vsarch: amd64 }
+          - { name: windows-2025-i386,      os: windows-2025,   vsversion: 2022, vsarch: amd64_x86 }
+          - { name: windows-11-arm-arm64,   os: windows-11-arm, vsversion: 2022, vsarch: arm64 }
+          - { name: windows-11-arm-arm64ec, os: windows-11-arm, vsversion: 2022, vsarch: arm64, use_arm64ec: true }
     name: ${{ format('{0}', matrix.name) }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -438,7 +435,7 @@ jobs:
           elif [[ "${{ matrix.use_arm64ec }}" == "true" ]]; then true;
             echo "UPX_CMAKE_CONFIG_FLAGS_PLATFORM=-A ARM64EC" >> $GITHUB_ENV
             echo "UPX_CONFIG_DISABLE_SELF_PACK_TEST=ON" >> $GITHUB_ENV
-          elif [[ "${{ matrix.vsarch }}" == amd64_arm64 ]]; then true;
+          elif [[ "${{ matrix.vsarch }}" == *arm64 ]]; then true;
             echo "UPX_CMAKE_CONFIG_FLAGS_PLATFORM=-A ARM64" >> $GITHUB_ENV
             echo "UPX_CONFIG_DISABLE_SELF_PACK_TEST=ON" >> $GITHUB_ENV
           elif [[ "${{ matrix.vsarch }}" == amd64_x86 ]]; then true;
@@ -461,23 +458,21 @@ jobs:
           cmake --install build/debug   --config Debug   --prefix "$PWD/tmp/artifact/$N/InstallWithCMake/InstallWithPrefixAndStrip/debug"   --strip
           cmake --install build/release --config Release --prefix "$PWD/tmp/artifact/$N/InstallWithCMake/InstallWithPrefixAndStrip/release" --strip
           (cd build && cp -ai --parents */*/upx.exe "../tmp/artifact/$N")
-          (cd tmp/artifact && tar --sort=name --zstd -cf "$N.tar.zst" "$N" && rm -rf "./$N" && ls -la && zstd -tq "$N.tar.zst")
+          #(cd tmp/artifact && tar --sort=name --zstd -cf "$N.tar.zst" "$N" && rm -rf "./$N" && ls -la && zstd -tq "$N.tar.zst")
+          (cd tmp/artifact && tar --sort=name --gzip -cf "$N.tar.gz" "$N" && rm -rf "./$N" && ls -la && gzip -tq "$N.tar.gz")
           echo "artifact_name=$N" >> $GITHUB_ENV
       - name: ${{ format('Upload artifact {0}', env.artifact_name) }}
         uses: actions/upload-artifact@v4
         with: { name: '${{ env.artifact_name }}', path: tmp/artifact }
       - name: Run ctest tests
-        if: ${{ matrix.vsarch != 'amd64_arm64' }}
         run: |
           ctest --test-dir build/debug   --parallel 8 -C Debug
           ctest --test-dir build/release --parallel 8 -C Release
       - name: Mimic ctest tests
-        if: ${{ matrix.vsarch != 'amd64_arm64' }}
         run: |
           env -C build/debug/Debug     upx_exe=./upx.exe bash "$PWD"/misc/testsuite/mimic_ctest.sh
           env -C build/release/Release upx_exe=./upx.exe bash "$PWD"/misc/testsuite/mimic_ctest.sh
       - name: Run test suite build/release
-        if: ${{ matrix.vsarch != 'amd64_arm64' }}
         run: |
           export upx_testsuite_SRCDIR="$(readlink -en ../deps/upx-testsuite)"
           env -C build/release/Release upx_exe=./upx.exe bash "$PWD"/misc/testsuite/upx_testsuite_1.sh
