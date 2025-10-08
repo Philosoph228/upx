@@ -1,4 +1,4 @@
-#! /usr/bin/env python2
+#! /usr/bin/env python
 ## vim:set ts=4 sw=4 et: -*- coding: utf-8 -*-
 #
 #  bin2h.py --
@@ -133,7 +133,7 @@ class _DataWriter_gas_u32(DataWriter):
                 w(",")
             v = struct.unpack(self.DECODE, data[i:i+4])
             assert len(v) == 1, v
-            w("0x%08x" % (v[0] & 0xffffffffL))
+            w("0x%08x" % (v[0] & 0xffffffff))
         self.w_eol()
 
 class DataWriter_gas_be32(_DataWriter_gas_u32):
@@ -170,8 +170,8 @@ class DataWriter_nasm(DataWriter):
 
 def w_checksum_c(w, s, data):
     w("#define %s_SIZE    %d\n"     % (s, len(data)))
-    w("#define %s_ADLER32 0x%08x\n" % (s, 0xffffffffL & zlib.adler32(data)))
-    w("#define %s_CRC32   0x%08x\n" % (s, 0xffffffffL & zlib.crc32(data)))
+    w("#define %s_ADLER32 0x%08x\n" % (s, 0xffffffff & zlib.adler32(data)))
+    w("#define %s_CRC32   0x%08x\n" % (s, 0xffffffff & zlib.crc32(data)))
     w("\n")
 
 
@@ -293,10 +293,10 @@ def main(argv):
     # check file size
     st = os.stat(ifile)
     if 1 and st.st_size <= 0:
-        print >> sys.stderr, "%s: ERROR: empty file" % (ifile)
+        sys.stderr.write("%s: ERROR: empty file\n" % (ifile))
         sys.exit(1)
     if 1 and st.st_size > 128*1024:
-        print >> sys.stderr, "%s: ERROR: file is too big (%d bytes)" % (ifile, st.st_size)
+        sys.stderr.write("%s: ERROR: file is too big (%d bytes)\n" % (ifile, st.st_size))
         sys.exit(1)
 
     # read ifile
@@ -333,7 +333,7 @@ def main(argv):
             mdata.append(method)
     assert len(mdata) >= 1
     mdata.reverse()
-    ##print opts.methods, [(i, len(mdata_odata[i])) for i in mdata]
+    ##print (opts.methods, [(i, len(mdata_odata[i])) for i in mdata])
 
     # write ofile
     if opts.dry_run:

@@ -1,4 +1,4 @@
-#! /usr/bin/env python2
+#! /usr/bin/env python
 ## vim:set ts=4 sw=4 et: -*- coding: utf-8 -*-
 #
 #  cleanasm.py --
@@ -135,7 +135,7 @@ def main(argv):
             pos += sgn(mlen)
         if mlen < 0:
             mpos.reverse()
-        if debug and 1: print mlen, m, [olines[x] for x in mpos]
+        if debug and 1: print (mlen, m, [olines[x] for x in mpos])
         dpos = []
         i = -abs(mlen)
         while i < 0:
@@ -404,7 +404,7 @@ def main(argv):
                 assert len(r) == len(dpos)
                 pos = pos0
                 for inst, args in r:
-                    ##print pos-pos0, inst, args
+                    ##print (pos-pos0, inst, args)
                     olines[pos][1] = inst
                     olines[pos][2] = args
                     pos += 1
@@ -438,7 +438,7 @@ def main(argv):
             if v[:2] == [1, 2]:     # external 2-byte
                 x = inline_map.get(v[2])
                 if x and v[3] <= x[1]:       # max. number of calls
-                    ##print "inline", v, x
+                    ##print ("inline", v, x)
                     if x:
                         olines[i][1] = x[0]
                         olines[i][2] = "/* inlined */"
@@ -478,7 +478,7 @@ def main(argv):
         l = "%8s%-7s %s" % ("", inst, args)
         ofp.write(l.rstrip() + "\n")
     ofp.close()
-    ##print olines
+    ##print (olines)
 
 
 if __name__ == "__main__":

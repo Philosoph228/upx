@@ -1,4 +1,4 @@
-#! /usr/bin/env python2
+#! /usr/bin/env python
 ## vim:set ts=4 sw=4 et: -*- coding: utf-8 -*-
 #
 #  wdis2gas.py --
@@ -138,7 +138,7 @@ def main(argv):
     for l in olines:
         ofp.write(l.rstrip() + "\n")
     ofp.close()
-    ##print olines
+    ##print (olines)
 
 
 if __name__ == "__main__":

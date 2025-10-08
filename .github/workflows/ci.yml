@@ -41,12 +41,14 @@ jobs:
           apt-get update && apt-get upgrade -y
           # install system packages
           apt-get install -y --no-install-recommends bash ca-certificates curl git libmpc3 make perl-base tar time xz-utils libc6:i386 zlib1g:i386
-          # install python2-minimal packages from Debian-11
-          mkdir ../deps; cd ../deps; mkdir packages
-          curl -sS -L -O https://ftp.debian.org/debian/pool/main/p/python2.7/libpython2.7-minimal_2.7.18-8+deb11u1_amd64.deb
-          curl -sS -L -O https://ftp.debian.org/debian/pool/main/p/python2.7/python2.7-minimal_2.7.18-8+deb11u1_amd64.deb
-          dpkg -i ./*python2*.deb && rm ./*python2*.deb && ldconfig
-          ln -s -v python2.7 /usr/bin/python2
+#
+          ### install python2-minimal packages from Debian-11
+          ## mkdir ../deps; cd ../deps; mkdir packages
+          ## curl -sS -L -O https://ftp.debian.org/debian/pool/main/p/python2.7/libpython2.7-minimal_2.7.18-8+deb11u1_amd64.deb
+          ## curl -sS -L -O https://ftp.debian.org/debian/pool/main/p/python2.7/python2.7-minimal_2.7.18-8+deb11u1_amd64.deb
+          ## dpkg -i ./*python2*.deb && rm ./*python2*.deb && ldconfig
+          ## ln -s -v python2.7 /usr/bin/python2
+#
           # manually unpack and install compat libs from Ubuntu-16.04
           curl -sS -L -O https://archive.kernel.org/ubuntu-archive/ubuntu/pool/main/m/mpfr4/libmpfr4_3.1.6-1_amd64.deb
           for f in ./*.deb; do dpkg -x $f ./packages; done
