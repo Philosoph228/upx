@@ -326,7 +326,7 @@ def main(argv):
     r_methods.reverse()
     for method in r_methods:
         method, odata = compress_stub(method, idata)
-        if mdata_odata.has_key(method):
+        if method in mdata_odata:
             assert mdata_odata[method] == odata
         else:
             mdata_odata[method] = odata

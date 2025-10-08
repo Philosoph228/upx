@@ -88,7 +88,7 @@ def check_dump(dump_fn):
         assert int(f[0], 10) == len(sections)
         e = f[1], int(f[2], 16), int(f[5], 16), int(f[6][3:], 10), len(sections)
         sections.append(e)
-        assert not section_names.has_key(e[0]), e
+        assert not e[0] in section_names, e
         assert not e[0].endswith(":"), ("bad section name", e)
         section_names[e[0]] = e
     ##print (sections)

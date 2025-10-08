@@ -99,11 +99,11 @@ def main(argv):
             k, v = m.group(1).strip(), [0, 0, None, 0]
         assert k and v, (inst, args)
         v[2] = k                # new name
-        if labels.has_key(k):
+        if k in labels:
             assert labels[k][:2] == v[:2]
         return k, v
     def add_label(k, v):
-        if labels.has_key(k):
+        if k in labels:
             assert labels[k][:2] == v[:2]
         else:
             labels[k] = v
@@ -449,7 +449,7 @@ def main(argv):
     ofp = open(ofile, "wb")
     current_label = None
     for label, inst, args, args_label in olines:
-        if labels.has_key(label):
+        if label in labels:
             current_label = labels[label][2]
             if opts.verbose:
                 ofp.write("%s: /* %d */\n" % (labels[label][2], labels[label][3]))
