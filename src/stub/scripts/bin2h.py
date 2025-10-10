@@ -116,7 +116,7 @@ class DataWriter_gas(DataWriter):
                 w(".byte ".encode())
             else:
                 w(",".encode())
-            w(("%3d" % ord(data[i])).encode())
+            w(("%3d" % data[i]).encode())
         self.w_eol()
 
 
