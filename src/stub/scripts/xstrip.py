@@ -46,7 +46,7 @@ def strip_with_dump(dump_fn, eh, idata):
     new_len = 0
     lines = open(dump_fn, "rb").readlines()
     for l in lines:
-        l = re.sub(r"\s+", " ", l.strip())
+        l = re.sub(r"\s+", " ", l.strip().decode())
         f = l.split(" ")
         if len(f) >= 8:
             if f[7].startswith("CONTENTS"):
@@ -67,7 +67,7 @@ def strip_with_dump(dump_fn, eh, idata):
 
 def check_dump(dump_fn):
     lines = open(dump_fn, "rb").readlines()
-    lines = map(lambda l: re.sub(r"\s+", " ", l.strip()).strip(), lines)
+    lines = map(lambda l: re.sub(r"\s+", " ", l.strip().decode()).strip(), lines)
     lines = filter(None, lines)
     d = "\n".join(lines)
     psections = d.find("Sections:\n")
@@ -140,25 +140,25 @@ def do_file(fn):
         fp = open(fn, "r+b")
     fp.seek(0, 0)
     idata = fp.read()
-    if idata[:4] != "\x7f\x45\x4c\x46":
+    if idata[:4] != "\x7f\x45\x4c\x46".encode():
         raise Exception("%s is not %s" % (fn, "ELF"))
-    if idata[4:7] == "\x01\x01\x01":
+    if idata[4:7] == "\x01\x01\x01".encode():
         # ELF32 LE
         eh, idata = idata[:52], idata[52:]
         e_shnum, e_shstrndx = struct.unpack("<HH", eh[48:52])
         assert e_shstrndx + 3 == e_shnum
         ##eh = eh[:48] + struct.pack("<HH", e_shnum - 3, e_shstrndx)
-    elif idata[4:7] == "\x01\x02\x01":
+    elif idata[4:7] == "\x01\x02\x01".encode():
         # ELF32 BE
         eh, idata = idata[:52], idata[52:]
         e_shnum, e_shstrndx = struct.unpack(">HH", eh[48:52])
         assert e_shstrndx + 3 == e_shnum
-    elif idata[4:7] == "\x02\x01\x01":
+    elif idata[4:7] == "\x02\x01\x01".encode():
         # ELF64 LE
         eh, idata = idata[:64], idata[64:]
         e_shnum, e_shstrndx = struct.unpack("<HH", eh[60:64])
         assert e_shstrndx + 3 == e_shnum
-    elif idata[4:7] == "\x02\x02\x01":
+    elif idata[4:7] == "\x02\x02\x01".encode():
         # ELF64 BE
         eh, idata = idata[:64], idata[64:]
         e_shnum, e_shstrndx = struct.unpack(">HH", eh[60:64])
@@ -167,7 +167,7 @@ def do_file(fn):
         raise Exception("%s is not %s" % (fn, "ELF"))
 
     odata = None
-    pos = idata.find("\0.symtab\0.strtab\0.shstrtab\0")
+    pos = idata.find("\0.symtab\0.strtab\0.shstrtab\0".encode())
     if opts.with_dump:
         eh, odata = strip_with_dump(opts.with_dump, eh, idata)
         # Other compilers can intermix the contents of .rela sections

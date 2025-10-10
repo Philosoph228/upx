@@ -45,7 +45,7 @@ class opts:
 # ************************************************************************/
 
 def w_header_c(w, ifile, ofile, n):
-    w("/* %s\n   created from %s, %d (0x%x) bytes\n" % (os.path.basename(ofile), os.path.basename(ifile), n, n))
+    w(("/* %s\n   created from %s, %d (0x%x) bytes\n" % (os.path.basename(ofile), os.path.basename(ifile), n, n)).encode())
     w("""\n\
    This file is part of the UPX executable compressor.
 
@@ -74,7 +74,7 @@ def w_header_c(w, ifile, ofile, n):
 
    John F. Reiser
    <jreiser@users.sourceforge.net>
- */\n\n""")
+ */\n\n""".encode())
 
 
 # /***********************************************************************
@@ -87,11 +87,11 @@ class DataWriter:
         self.pos = None
 
     def w_bol(self, pos):
-        self.w("/* 0x%04x */ " % (pos))
+        self.w(("/* 0x%04x */ " % (pos)).encode())
         self.pos = pos
     def w_eol(self, fill=""):
         if self.pos is not None:
-            self.w(fill.rstrip() + "\n")
+            self.w((fill.rstrip() + "\n").encode())
 
 
 class DataWriter_c(DataWriter):
@@ -101,8 +101,8 @@ class DataWriter_c(DataWriter):
             if i & 15 == 0:
                 self.w_eol()
                 self.w_bol(i)
-            w("%3d" % ord(data[i]))
-            if i != n - 1: w(",")
+            w(("%3d" % data[i]).encode())
+            if i != n - 1: w(",".encode())
         self.w_eol()
 
 
@@ -169,10 +169,10 @@ class DataWriter_nasm(DataWriter):
 # ************************************************************************/
 
 def w_checksum_c(w, s, data):
-    w("#define %s_SIZE    %d\n"     % (s, len(data)))
-    w("#define %s_ADLER32 0x%08x\n" % (s, 0xffffffff & zlib.adler32(data)))
-    w("#define %s_CRC32   0x%08x\n" % (s, 0xffffffff & zlib.crc32(data)))
-    w("\n")
+    w(("#define %s_SIZE    %d\n"     % (s, len(data))).encode())
+    w(("#define %s_ADLER32 0x%08x\n" % (s, 0xffffffff & zlib.adler32(data))).encode())
+    w(("#define %s_CRC32   0x%08x\n" % (s, 0xffffffff & zlib.crc32(data))).encode())
+    w("\n".encode())
 
 
 def write_stub(w, odata, method_index, methods):
@@ -194,7 +194,7 @@ def write_stub(w, odata, method_index, methods):
                 #w('__attribute__((__section__("upx_stubs")))\n')
                 #w("#endif\n")
                 w("ATTRIBUTE_FOR_STUB(%s)\n" % (opts.ident))
-            w("unsigned char %s[%d] = {\n" % (opts.ident, len(odata)))
+            w(("unsigned char %s[%d] = {\n" % (opts.ident, len(odata))).encode())
     if opts.mode == "c":
         DataWriter_c(w).w_data(odata)
     elif opts.mode == "gas":
@@ -209,11 +209,11 @@ def write_stub(w, odata, method_index, methods):
         assert 0, ("invalid mode", opts.mode)
     if opts.ident:
         if opts.mode == "c":
-            w("};\n")
+            w("};\n".encode())
 
     if len(methods) > 1:
         if method_index == len(methods) - 1:
-            w("\n#endif\n")
+            w("\n#endif\n".encode())
 
 
 # /***********************************************************************
@@ -321,9 +321,12 @@ def main(argv):
     # compress stubs
     # (process in reverse order so that incompressible do not get sorted first)
     mdata, mdata_odata = [], {}
-    assert len(opts.methods) >= 1
-    r_methods = opts.methods[:]
-    r_methods.reverse()
+    ### FIXME  assert len(opts.methods) >= 1
+    ### r_methods = opts.methods[:]
+    ### r_methods.reverse()
+    r_methods = [];
+    for m in opts.methods:
+        r_methods.insert(0, m)
     for method in r_methods:
         method, odata = compress_stub(method, idata)
         if method in mdata_odata:
@@ -349,7 +352,7 @@ def main(argv):
     if opts.mode == "c":
         if opts.verbose >= 0:
             w_header_c(w, ifile, ofile, len(idata))
-        w("/* clang" + "-format" + " off */\n\n")
+        w(("/* clang" + "-format" + " off */\n\n").encode())
     for i in range(len(mdata)):
         write_stub(w, mdata_odata[mdata[i]], i, mdata)
     if ofp:

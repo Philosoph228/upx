@@ -83,7 +83,7 @@ def parse_comment(state, l, comment):
 
 
 def handle_inc_c(state, l, ofp):
-    m = re.search(r"^\s*\#\s*include\s+([\"\<])(.+?)([\"\>])(.*)$", l)
+    m = re.search(r"^\s*\#\s*include\s+([\"\<])(.+?)([\"\>])(.*)$", l.decode())
     if not m:
         return l
     q1, inc, q2, comment = m.groups()
@@ -130,13 +130,13 @@ def handle_file(ifn, ofp, parent_state=None):
     ifp = open(ifn, "rb")
     for l in ifp.readlines():
         state[2] += 1       # line counter
-        l = l.rstrip("\n")
+        l = l.rstrip("\n".encode())
         if opts.mode == "c":
             l = handle_inc_c(state, l, ofp)
         elif opts.mode == "nasm":
             l = handle_inc_nasm(state, l, ofp)
         if l is not None:
-            ofp.write(l + "\n")
+            ofp.write(l + "\n".encode())
 
 
 def main(argv):
@@ -179,12 +179,12 @@ def main(argv):
             os.unlink(fn)
         if files_mmd:
             fp = open(fn, "wb")
-            fp.write("%s : \\\n" % opts.target_mmd)
+            fp.write(("%s : \\\n" % opts.target_mmd).encode())
             for i, f in enumerate(files_mmd):
                 if i < len(files_mmd) - 1:
-                    fp.write("  %s \\\n" % f)
+                    fp.write(("  %s \\\n" % f).encode())
                 else:
-                    fp.write("  %s\n" % f)
+                    fp.write(("  %s\n" % f).encode())
             fp.close()
 
 
