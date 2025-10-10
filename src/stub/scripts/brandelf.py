@@ -54,32 +54,32 @@ def do_file(fn):
 
     def write(s):
         if not opts.dry_run:
-            fp.write(s)
+            fp.write(s.encode())
 
     def brand_arm(s):
-        if e_ident[4:7] != s:
+        if e_ident[4:7] != s.encode():
             raise Exception("%s is not %s" % (fn, opts.bfdname))
         write("\x61") # ELFOSABI_ARM
     def brand_freebsd(s):
-        if e_ident[4:7] != s:
+        if e_ident[4:7] != s.encode():
             raise Exception("%s is not %s" % (fn, opts.bfdname))
         write("\x09")
     def brand_linux(s):
-        if e_ident[4:7] != s:
+        if e_ident[4:7] != s.encode():
             raise Exception("%s is not %s" % (fn, opts.bfdname))
         ##write("\x00Linux\x00\x00\x00")
         write("\x00" * 9)
     def brand_netbsd(s):
-        if e_ident[4:7] != s:
+        if e_ident[4:7] != s.encode():
             raise Exception("%s is not %s" % (fn, opts.bfdname))
         write("\x02")
     def brand_openbsd(s):
-        if e_ident[4:7] != s:
+        if e_ident[4:7] != s.encode():
             raise Exception("%s is not %s" % (fn, opts.bfdname))
         write("\x0c")
 
     if opts.bfdname[:3] == "elf":
-        if e_ident[:4] != "\x7f\x45\x4c\x46":
+        if e_ident[:4] != "\x7f\x45\x4c\x46".encode():
             raise Exception("%s is not %s" % (fn, "ELF"))
         fp.seek(7, 0)
         if opts.bfdname == "elf32-bigarm" and opts.elfosabi == "arm":
