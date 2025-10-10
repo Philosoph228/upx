@@ -113,10 +113,10 @@ class DataWriter_gas(DataWriter):
             if i & 15 == 0:
                 self.w_eol()
                 self.w_bol(i)
-                w(".byte ")
+                w(".byte ".encode())
             else:
-                w(",")
-            w("%3d" % ord(data[i]))
+                w(",".encode())
+            w(("%3d" % ord(data[i])).encode())
         self.w_eol()
 
 
@@ -128,12 +128,12 @@ class _DataWriter_gas_u32(DataWriter):
             if i & 15 == 0:
                 self.w_eol()
                 self.w_bol(i)
-                w(".int ")
+                w(".int ".encode())
             else:
-                w(",")
+                w(",".encode())
             v = struct.unpack(self.DECODE, data[i:i+4])
             assert len(v) == 1, v
-            w("0x%08x" % (v[0] & 0xffffffff))
+            w(("0x%08x" % (v[0] & 0xffffffff)).encode())
         self.w_eol()
 
 class DataWriter_gas_be32(_DataWriter_gas_u32):
@@ -148,7 +148,7 @@ class DataWriter_nasm(DataWriter):
     def w_eol(self, fill=""):
         if self.pos is not None:
             self.w(fill)
-            self.w("   ; 0x%04x\n" % (self.pos))
+            self.w(("   ; 0x%04x\n" % (self.pos)).encode())
 
     def w_data(self, data):
         w, n = self.w, len(data)
@@ -156,10 +156,10 @@ class DataWriter_nasm(DataWriter):
             if i & 15 == 0:
                 self.w_eol()
                 self.w_bol(i)
-                w("db ")
+                w("db ".encode())
             else:
-                w(",")
-            w("%3d" % ord(data[i]))
+                w(",".encode())
+            w(("%3d" % ord(data[i])).encode())
         nn = ((n + 15) & ~15) - n
         self.w_eol(" " * 4 * nn)
 
@@ -179,11 +179,11 @@ def write_stub(w, odata, method_index, methods):
     method = methods[method_index]
     if len(methods) > 1:
         if method_index == 0:
-            w("#if (%s == %d)\n\n" % (opts.mname, method))
+            w(("#if (%s == %d)\n\n" % (opts.mname, method)).encode())
         elif method_index < len(methods) - 1:
-            w("\n#elif (%s == %d)\n\n" % (opts.mname, method))
+            w(("\n#elif (%s == %d)\n\n" % (opts.mname, method)).encode())
         else:
-            w("\n#else\n\n")
+            w("\n#else\n\n".encode())
 
     if opts.ident:
         if opts.mode == "c":
@@ -193,7 +193,7 @@ def write_stub(w, odata, method_index, methods):
                 #w("#if defined(__ELF__)\n")
                 #w('__attribute__((__section__("upx_stubs")))\n')
                 #w("#endif\n")
-                w("ATTRIBUTE_FOR_STUB(%s)\n" % (opts.ident))
+                w(("ATTRIBUTE_FOR_STUB(%s)\n" % (opts.ident)).encode())
             w(("unsigned char %s[%d] = {\n" % (opts.ident, len(odata))).encode())
     if opts.mode == "c":
         DataWriter_c(w).w_data(odata)
