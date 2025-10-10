@@ -65,7 +65,6 @@ def do_file(fn):
             raise Exception("%s is not %s" % (fn, opts.bfdname))
         write("\x09")
     def brand_linux(s):
-        print ("brand_linux ", s.encode(), "e_ident ", e_ident[4:7])
         if e_ident[4:7] != s.encode():
             raise Exception("%s is not %s" % (fn, opts.bfdname))
         ##write("\x00Linux\x00\x00\x00")

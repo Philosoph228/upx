@@ -93,7 +93,7 @@ def handle_inc_c(state, l, ofp):
     elif q1 == '"' and q2 == '"':
         dirs = [state[1]] + opts.includes
     else:
-        raise Exception("syntax error: include line " + l)
+        raise Exception("syntax error: include line " + l.decode())
     for dir in dirs:
         fn = os.path.join(dir, inc)
         if os.path.isfile(fn):
