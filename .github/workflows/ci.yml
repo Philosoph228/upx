@@ -23,8 +23,7 @@ env:
   UPX_DEBUG_TEST_LIBC_QSORT: 1
   ZSTD_CLEVEL: 17
   # 2025-08-19
-  #ZIG_DIST_VERSION: 0.15.1
-  ZIG_DIST_VERSION: zig-0.16.0-dev.600+12ed0ff1e
+  ZIG_DIST_VERSION: 0.15.1
 
 jobs:
   job-rebuild-and-verify-stubs:
@@ -40,7 +39,7 @@ jobs:
           dpkg --add-architecture i386
           apt-get update && apt-get upgrade -y
           # install system packages
-          apt-get install -y --no-install-recommends bash ca-certificates curl git libmpc3 make perl-base python-is-python3 tar time xz-utils libc6:i386 zlib1g:i386
+          apt-get install -y --no-install-recommends bash ca-certificates curl git libmpc3 make perl-base python3-minimal tar time xz-utils libc6:i386 zlib1g:i386
           mkdir ../deps; cd ../deps; mkdir packages
           ### install python2-minimal packages from Debian-11
           ## curl -sS -L -O https://ftp.debian.org/debian/pool/main/p/python2.7/libpython2.7-minimal_2.7.18-8+deb11u1_amd64.deb
@@ -412,12 +411,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { name: windows-2022-amd64,     os: windows-2022,   vsversion: 2022, vsarch: amd64 }
-          - { name: windows-2022-i386,      os: windows-2022,   vsversion: 2022, vsarch: amd64_x86 }
-          - { name: windows-2025-amd64,     os: windows-2025,   vsversion: 2022, vsarch: amd64 }
-          - { name: windows-2025-i386,      os: windows-2025,   vsversion: 2022, vsarch: amd64_x86 }
-          - { name: windows-11-arm-arm64,   os: windows-11-arm, vsversion: 2022, vsarch: arm64 }
-          - { name: windows-11-arm-arm64ec, os: windows-11-arm, vsversion: 2022, vsarch: arm64, use_arm64ec: true }
+          - { name: windows-11-arm64,   os: windows-11-arm, vsversion: 2022, vsarch: arm64 }
+          - { name: windows-11-arm64ec, os: windows-11-arm, vsversion: 2022, vsarch: arm64, use_arm64ec: true }
+          # { name: windows-11-arm64x,  os: windows-11-arm, vsversion: 2022, vsarch: arm64, use_arm64x: true }
+          - { name: windows-2022-amd64, os: windows-2022,   vsversion: 2022, vsarch: amd64 }
+          - { name: windows-2022-i386,  os: windows-2022,   vsversion: 2022, vsarch: amd64_x86 }
+          - { name: windows-2025-amd64, os: windows-2025,   vsversion: 2022, vsarch: amd64 }
+          - { name: windows-2025-i386,  os: windows-2025,   vsversion: 2022, vsarch: amd64_x86 }
     name: ${{ format('{0}', matrix.name) }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -435,11 +435,16 @@ jobs:
           elif [[ "${{ matrix.use_arm64ec }}" == "true" ]]; then true;
             echo "UPX_CMAKE_CONFIG_FLAGS_PLATFORM=-A ARM64EC" >> $GITHUB_ENV
             echo "UPX_CONFIG_DISABLE_SELF_PACK_TEST=ON" >> $GITHUB_ENV
+          elif [[ "${{ matrix.use_arm64x }}" == "true" ]]; then true;
+            echo "UPX_CMAKE_CONFIG_FLAGS_PLATFORM=-A ARM64X" >> $GITHUB_ENV
+            echo "UPX_CONFIG_DISABLE_SELF_PACK_TEST=ON" >> $GITHUB_ENV
           elif [[ "${{ matrix.vsarch }}" == *arm64 ]]; then true;
             echo "UPX_CMAKE_CONFIG_FLAGS_PLATFORM=-A ARM64" >> $GITHUB_ENV
             echo "UPX_CONFIG_DISABLE_SELF_PACK_TEST=ON" >> $GITHUB_ENV
-          elif [[ "${{ matrix.vsarch }}" == amd64_x86 ]]; then true;
+          elif [[ "${{ matrix.vsarch }}" == *x86 ]]; then true;
             echo "UPX_CMAKE_CONFIG_FLAGS_PLATFORM=-A Win32" >> $GITHUB_ENV
+          else
+            exit 1
           fi
       - run: make build/debug
       - run: make build/release
@@ -484,15 +489,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # { name: amd64-win64-vs2019,   os: windows-2019, vsversion: 2019, vsarch: amd64 }
-          - { name: amd64-win64-vs2022,   os: windows-2022, vsversion: 2022, vsarch: amd64 }
-          # { name: arm64-win64-vs2019,   os: windows-2019, vsversion: 2019, vsarch: amd64_arm64 }
-          - { name: arm64-win64-vs2022,   os: windows-2022, vsversion: 2022, vsarch: amd64_arm64 }
-          - { name: arm64ec-win64-vs2022, os: windows-2022, vsversion: 2022, vsarch: amd64_arm64, cl_machine_flags: -arm64EC, link_machine_flags: '/machine:arm64ec' }
-          # { name: arm64x-win64-vs2022,  os: windows-2022, vsversion: 2022, vsarch: amd64_arm64, cl_machine_flags: -arm64EC, link_machine_flags: '/machine:arm64x' }
-          # { name: i386-win32-vs2019,    os: windows-2019, vsversion: 2019, vsarch: amd64_x86 }
-          - { name: i386-win32-vs2022,    os: windows-2022, vsversion: 2022, vsarch: amd64_x86 }
-    name: ${{ format('windows {0}', matrix.name) }}
+          - { name: amd64-win64-vs2025,   os: windows-2025, vsversion: 2022, vsarch: amd64 }
+          - { name: arm64-win64-vs2025,   os: windows-2025, vsversion: 2022, vsarch: amd64_arm64 }
+          - { name: arm64ec-win64-vs2025, os: windows-2025, vsversion: 2022, vsarch: amd64_arm64, cl_machine_flags: -arm64EC, link_machine_flags: '/machine:arm64ec' }
+          # { name: arm64x-win64-vs2025,  os: windows-2025, vsversion: 2022, vsarch: amd64_arm64, cl_machine_flags: -arm64EC, link_machine_flags: '/machine:arm64x' }
+          - { name: i386-win32-vs2025,    os: windows-2025, vsversion: 2022, vsarch: amd64_x86 }
+    name: ${{ format('windows-bh {0}', matrix.name) }}
     runs-on: ${{ matrix.os }}
     env:
       C: ${{ matrix.name }}
@@ -553,10 +555,11 @@ jobs:
       - run: shopt -s globstar; file   build/**/upx* || true
       - name: Make artifact
         run: |
-          N=$(echo "upx-${GITHUB_REF_NAME}-${GITHUB_SHA:0:7}-windows-${{ matrix.name }}" | sed 's/[^0-9a-zA-Z_.-]/-/g')
+          N=$(echo "upx-${GITHUB_REF_NAME}-${GITHUB_SHA:0:7}-windows-bh-${{ matrix.name }}" | sed 's/[^0-9a-zA-Z_.-]/-/g')
           mkdir -p "tmp/artifact/$N/$B"
           cp -ai build/$C/$B/upx/upx*.exe "tmp/artifact/$N/$B"
-          (cd tmp/artifact && tar --sort=name --zstd -cf "$N.tar.zst" "$N" && rm -rf "./$N" && ls -la && zstd -tq "$N.tar.zst")
+          #(cd tmp/artifact && tar --sort=name --zstd -cf "$N.tar.zst" "$N" && rm -rf "./$N" && ls -la && zstd -tq "$N.tar.zst")
+          (cd tmp/artifact && tar --sort=name --gzip -cf "$N.tar.gz" "$N" && rm -rf "./$N" && ls -la && gzip -tq "$N.tar.gz")
           echo "artifact_name=$N" >> $GITHUB_ENV
       - name: ${{ format('Upload artifact {0}', env.artifact_name) }}
         uses: actions/upload-artifact@v4
@@ -652,9 +655,9 @@ jobs:
           ZIG_DIST_VERSION=${ZIG_DIST_VERSION/#zig-/}
           ZIG_DIST_NAME=zig-linux-x86_64-${ZIG_DIST_VERSION}
           ZIG_DIST_NAME=zig-x86_64-linux-${ZIG_DIST_VERSION}
-          curl -sS -L -O https://ziglang.org/builds/${ZIG_DIST_NAME}.tar.xz
+          #curl -sS -L -O https://ziglang.org/builds/${ZIG_DIST_NAME}.tar.xz
           #curl -sS -L -O https://ziglang.org/download/0.14.1/${ZIG_DIST_NAME}.tar.xz
-          #curl -sS -L -O https://ziglang.org/download/0.15.1/${ZIG_DIST_NAME}.tar.xz
+          curl -sS -L -O https://ziglang.org/download/0.15.1/${ZIG_DIST_NAME}.tar.xz
           ls -l ${ZIG_DIST_NAME}.tar.xz
           file ${ZIG_DIST_NAME}.tar.xz || true
           tar -xoJf ${ZIG_DIST_NAME}.tar.xz
