@@ -9,7 +9,7 @@ RUN dpkg --add-architecture i386 \
     && apt-get update && apt-get upgrade -y \
     && apt-get install -y --no-install-recommends \
         aria2 bash bash-completion ca-certificates coreutils curl diffutils findutils git grep gzip \
-        less libmpc3 make ncurses-term perl-base sed sudo tar time util-linux wget xz-utils \
+        less libmpc3 make ncurses-term perl-base python3 sed sudo tar time util-linux wget xz-utils \
         libc6:i386 zlib1g:i386 \
         # the following packages are not required for rebuilding the stubs, but
         # they do make the image *much* more convenient and also allow building
@@ -19,7 +19,7 @@ RUN dpkg --add-architecture i386 \
         g++ gawk gdb gh gojq ht htop hyperfine jq just ksh \
         lftp libzstd-dev lsb-release lsd lz4 lzip lzop minify mksh moreutils musl neovim ninja-build \
         p7zip parallel patch patchelf patchutils pax-utils proot \
-        python3 python3-pyasn1 python3-pycryptodome python3-pycurl python3-tomli python3-tomli-w \
+        python3-pyasn1 python3-pycryptodome python3-pycurl python3-tomli python3-tomli-w \
         python3-yaml python3-zstd \
         re2c ripgrep rsync screen socat strace universal-ctags unzip valgrind yash yq \
         zip zlib1g-dev zoxide zsh zstd \
