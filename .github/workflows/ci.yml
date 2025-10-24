@@ -294,8 +294,7 @@ jobs:
           # NOTE: macos does not have "env -C"; only with brew coreutils
           - { os: macos-13, gcc: gcc-12, gxx: g++-12, testsuite: true }
           - { os: macos-14, gcc: gcc-13, gxx: g++-13, testsuite: true }
-          # { os: macos-15, gcc: gcc-14, gxx: g++-14, testsuite: true }
-          - { os: macos-15, testsuite: true }
+          - { os: macos-15, gcc: gcc-14, gxx: g++-14, testsuite: true }
           - { os: macos-26, gcc: gcc-15, gxx: g++-15, testsuite: true }
     name: ${{ format('{0} {1}{2}', matrix.os, matrix.xcode_version && 'xcode-' || '',  matrix.xcode_version) }}
     runs-on: ${{ matrix.os }}
@@ -372,6 +371,7 @@ jobs:
           (cd build/extra/clang/release && DESTDIR="$PWD/Install with cmake" cmake --install .)
           (cd build/extra/clang/release && DESTDIR="$PWD/Install with make"  make install)
       - name: Run ctest tests
+        if: ${{ matrix.testsuite }}
         run: |
           for f in ./build/extra/*/*/upx; do file $f; done
           jobs="clang/debug clang/release"
@@ -379,6 +379,7 @@ jobs:
           echo "===== parallel jobs: $jobs"
           CTEST_JOBS=2 parallel -kv --lb 'make build/extra/{}+test' ::: $jobs
       - name: Mimic ctest tests
+        if: ${{ matrix.testsuite }}
         run: |
           export PATH="$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH"
           jobs="clang/debug clang/release"
@@ -386,7 +387,7 @@ jobs:
           echo "===== parallel jobs: $jobs"
           parallel -kv --lb 'cd build/extra/{} && bash ../../../../misc/testsuite/mimic_ctest.sh' ::: $jobs
       - name: Run file system tests
-        if: ${{ matrix.testsuite }} # for coreutils readlink
+        if: ${{ matrix.testsuite }}
         run: |
           export PATH="$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH"
           export upx_test_file="$PWD"/build/extra/clang/release/upx
@@ -430,14 +431,14 @@ jobs:
         with: { vsversion: '${{ matrix.vsversion }}', arch: '${{ matrix.vsarch }}' }
       - name: Set platform
         run: |
-          if [[ "${{ matrix.vsarch }}" == amd64 ]]; then true;
-            echo "UPX_CMAKE_CONFIG_FLAGS_PLATFORM=-A x64" >> $GITHUB_ENV
-          elif [[ "${{ matrix.use_arm64ec }}" == "true" ]]; then true;
+          if [[ "${{ matrix.use_arm64ec }}" == "true" ]]; then true;
             echo "UPX_CMAKE_CONFIG_FLAGS_PLATFORM=-A ARM64EC" >> $GITHUB_ENV
             echo "UPX_CONFIG_DISABLE_SELF_PACK_TEST=ON" >> $GITHUB_ENV
           elif [[ "${{ matrix.use_arm64x }}" == "true" ]]; then true;
             echo "UPX_CMAKE_CONFIG_FLAGS_PLATFORM=-A ARM64X" >> $GITHUB_ENV
             echo "UPX_CONFIG_DISABLE_SELF_PACK_TEST=ON" >> $GITHUB_ENV
+          elif [[ "${{ matrix.vsarch }}" == *amd64 ]]; then true;
+            echo "UPX_CMAKE_CONFIG_FLAGS_PLATFORM=-A x64" >> $GITHUB_ENV
           elif [[ "${{ matrix.vsarch }}" == *arm64 ]]; then true;
             echo "UPX_CMAKE_CONFIG_FLAGS_PLATFORM=-A ARM64" >> $GITHUB_ENV
             echo "UPX_CONFIG_DISABLE_SELF_PACK_TEST=ON" >> $GITHUB_ENV
