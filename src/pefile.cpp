@@ -1502,8 +1502,12 @@ void PeFile::processTls2(Reloc *const rel, const Interval *const iv, unsigned ne
             kc += newaddr + sizeof(tls) - tlsp->datastart;
             *p = kc + imagebase;
             rel->add_reloc(kc, iv->ivarr[ic].len);
-        } else
-            rel->add_reloc(kc - imagebase, iv->ivarr[ic].len);
+        } else {
+            unsigned const a = kc - imagebase;
+            if (a < newaddr && !opt->win32_pe.strip_relocs)
+                throwCantPack("relocation too low (%#x < %#x); try --strip-relocs", a, newaddr);
+            rel->add_reloc(a, iv->ivarr[ic].len);
+        }
     }
 
     const unsigned tls_data_size = tlsp->dataend - tlsp->datastart;
