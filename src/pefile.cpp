@@ -1487,23 +1487,29 @@ void PeFile::processTls2(Reloc *const rel, const Interval *const iv, unsigned ne
 
     unsigned ic;
     // NEW: if TLS callbacks are used, relocate the VA of the callback chain, too - Stefan Widmann
-    for (ic = 0; ic < (use_tls_callbacks ? sizeof(LE32) * cb_size : (sizeof(LE32) - 1) * cb_size);
-         ic += cb_size)
-        rel->add_reloc(newaddr + ic, reloc_type);
+    for (ic = 0; ic < (unsigned) (use_tls_callbacks ? 4 : 3); ic++)
+        rel->add_reloc(newaddr + ic * cb_size, reloc_type);
 
     SPAN_S_VAR(tls, const tlsp, mb_otls);
     // now the relocation entries in the tls data area
-    for (ic = 0; ic < iv->ivnum; ic += sizeof(LE32)) {
+    for (ic = 0; ic < iv->ivnum; ic++) {
         SPAN_S_VAR(byte, const pp,
                    otls + (iv->ivarr[ic].start - (tlsp->datastart - imagebase) + sizeof(tls)));
         LEXX *const p = (LEXX *) raw_bytes(pp, sizeof(LEXX));
         cb_value_t kc = *p;
         if (kc < tlsp->dataend && kc >= tlsp->datastart) {
+            // add a relocation entry referring to an address inside of the original tls data area
+            // - as the new tls area is moved, the referred address have to be also adjusted
             kc += newaddr + sizeof(tls) - tlsp->datastart;
             *p = kc + imagebase;
             rel->add_reloc(kc, iv->ivarr[ic].len);
         } else {
-            unsigned const a = kc - imagebase;
+            // add a relocation entry referring to an address outside of the original tls data area
+            // by adding the difference of the new tlsdatastart and the old tlsdatastart to
+            // the address of the original relocation record
+            unsigned const a =
+                iv->ivarr[ic].start + (newaddr + sizeof(tls)) - (tlsp->datastart - imagebase);
+            // Must not overwrite compressed data
             if (a < newaddr && !opt->win32_pe.strip_relocs)
                 throwCantPack("relocation too low (%#x < %#x); try --strip-relocs", a, newaddr);
             rel->add_reloc(a, iv->ivarr[ic].len);
