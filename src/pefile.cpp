@@ -1497,7 +1497,7 @@ void PeFile::processTls2(Reloc *const rel, const Interval *const iv, unsigned ne
                    otls + (iv->ivarr[ic].start - (tlsp->datastart - imagebase) + sizeof(tls)));
         LEXX *const p = (LEXX *) raw_bytes(pp, sizeof(LEXX));
         cb_value_t kc = *p;
-        if (kc < tlsp->dataend && kc >= tlsp->datastart) {
+        if (kc >= tlsp->datastart && kc < tlsp->dataend) {
             // add a relocation entry referring to an address inside of the original tls data area
             // - as the new tls area is moved, the referred address have to be also adjusted
             kc += newaddr + sizeof(tls) - tlsp->datastart;
@@ -1507,7 +1507,7 @@ void PeFile::processTls2(Reloc *const rel, const Interval *const iv, unsigned ne
             // add a relocation entry referring to an address outside of the original tls data area
             // by adding the difference of the new tlsdatastart and the old tlsdatastart to
             // the address of the original relocation record
-            unsigned const a =
+            const unsigned a =
                 iv->ivarr[ic].start + (newaddr + sizeof(tls)) - (tlsp->datastart - imagebase);
             // Must not overwrite compressed data
             if (a < newaddr && !opt->win32_pe.strip_relocs)

@@ -117,7 +117,7 @@ jobs:
           (cd tmp/artifact && tar --sort=name --zstd -cf "$N.tar.zst" "$N" && rm -rf "./$N" && ls -la && zstd -tq "$N.tar.zst")
           echo "artifact_name=$N" >> $GITHUB_ENV
       - name: ${{ format('Upload artifact {0}', env.artifact_name) }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with: { name: '${{ env.artifact_name }}', path: tmp/artifact }
       - name: Run install tests
         run: |
@@ -222,7 +222,7 @@ jobs:
           (cd tmp/artifact && tar --sort=name --zstd -cf "$N.tar.zst" "$N" && rm -rf "./$N" && ls -la && zstd -tq "$N.tar.zst")
           echo "artifact_name=$N" >> $GITHUB_ENV
       - name: ${{ format('Upload artifact {0}', env.artifact_name) }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with: { name: '${{ env.artifact_name }}', path: tmp/artifact }
       - name: Run install tests
         run: |
@@ -364,7 +364,7 @@ jobs:
           (cd tmp/artifact && gtar --sort=name --zstd -cf "$N.tar.zst" "$N" && rm -rf "./$N" && ls -la && zstd -tq "$N.tar.zst")
           echo "artifact_name=$N" >> $GITHUB_ENV
       - name: ${{ format('Upload artifact {0}', env.artifact_name) }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with: { name: '${{ env.artifact_name }}', path: tmp/artifact }
       - name: Run install tests
         run: |
@@ -468,7 +468,7 @@ jobs:
           (cd tmp/artifact && tar --sort=name --gzip -cf "$N.tar.gz" "$N" && rm -rf "./$N" && ls -la && gzip -tq "$N.tar.gz")
           echo "artifact_name=$N" >> $GITHUB_ENV
       - name: ${{ format('Upload artifact {0}', env.artifact_name) }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with: { name: '${{ env.artifact_name }}', path: tmp/artifact }
       - name: Run ctest tests
         run: |
@@ -563,7 +563,7 @@ jobs:
           (cd tmp/artifact && tar --sort=name --gzip -cf "$N.tar.gz" "$N" && rm -rf "./$N" && ls -la && gzip -tq "$N.tar.gz")
           echo "artifact_name=$N" >> $GITHUB_ENV
       - name: ${{ format('Upload artifact {0}', env.artifact_name) }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with: { name: '${{ env.artifact_name }}', path: tmp/artifact }
       - name: Mimic ctest tests
         if: ${{ matrix.vsarch != 'amd64_arm64' }}
@@ -733,7 +733,7 @@ jobs:
           (cd tmp/artifact && tar --sort=name --zstd -cf "$N.tar.zst" "$N" && rm -rf "./$N" && ls -la && zstd -tq "$N.tar.zst")
           echo "artifact_name=$N" >> $GITHUB_ENV
       - name: ${{ format('Upload artifact {0}', env.artifact_name) }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with: { name: '${{ env.artifact_name }}', path: tmp/artifact }
       - name: Run install tests
         if: ${{ contains(matrix.zig_target, '-linux') }}

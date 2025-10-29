@@ -1104,11 +1104,11 @@ void upx_compiler_sanity_check(void) noexcept {
         alignas(16) static constexpr const byte dd[32] = {
             0, 0, 0, 0,    0,    0,    0,    0xff, 0xfe, 0xfd, 0xfc, 0xfb, 0xfa, 0xf9, 0xf8, 0,
             0, 0, 0, 0x7f, 0x7e, 0x7d, 0x7c, 0x7b, 0x7a, 0x79, 0x78, 0,    0,    0,    0,    0};
-        constexpr const byte *d = dd + 7;
 #if !defined(upx_fake_alignas_16)
         assert_noexcept(ptr_is_aligned<16>(dd));
         assert_noexcept(ptr_is_aligned(dd, 16));
 #endif
+        constexpr const byte *d = dd + 7;
         static_assert(upx::compile_time::get_be16(d) == 0xfffe);
         static_assert(upx::compile_time::get_be24(d) == 0xfffefd);
         static_assert(upx::compile_time::get_be32(d) == 0xfffefdfc);
