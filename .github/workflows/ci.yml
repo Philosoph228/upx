@@ -40,6 +40,7 @@ jobs:
           apt-get update && apt-get upgrade -y
           # install system packages
           apt-get install -y --no-install-recommends bash ca-certificates curl git libmpc3 make perl-base python3-minimal tar time xz-utils libc6:i386 zlib1g:i386
+          apt-get install -y gcc-riscv64-linux-gnu
           mkdir ../deps; cd ../deps; mkdir packages
           ### install python2-minimal packages from Debian-11
           ## curl -sS -L -O https://ftp.debian.org/debian/pool/main/p/python2.7/libpython2.7-minimal_2.7.18-8+deb11u1_amd64.deb
@@ -292,10 +293,10 @@ jobs:
         include:
           # NOTE: Xcode updates regularly tend to break Homebrew clang/gcc; often some ld64 issue; use "xcode_version" as needed; or try "-Wl,-ld_classic"
           # NOTE: macos does not have "env -C"; only with brew coreutils
-          - { os: macos-13, gcc: gcc-12, gxx: g++-12, testsuite: true }
           - { os: macos-14, gcc: gcc-13, gxx: g++-13, testsuite: true }
           - { os: macos-15, gcc: gcc-14, gxx: g++-14, testsuite: true }
           - { os: macos-26, gcc: gcc-15, gxx: g++-15, testsuite: true }
+          - { os: macos-15-intel, gcc: gcc-14, gxx: g++-14, testsuite: true }
     name: ${{ format('{0} {1}{2}', matrix.os, matrix.xcode_version && 'xcode-' || '',  matrix.xcode_version) }}
     runs-on: ${{ matrix.os }}
     steps:

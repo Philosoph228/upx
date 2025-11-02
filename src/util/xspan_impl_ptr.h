@@ -80,6 +80,7 @@ public:
         ptr_invalidate_and_poison(ptr); // point to non-null invalid address
         assertInvariants();
     }
+
     inline CSelf() { assertInvariants(); }
 
     // constructors from pointers
@@ -132,7 +133,6 @@ public:
     }
 
     // comparison
-
     bool operator==(pointer other) const noexcept { return ptr == other; }
     template <class U>
     XSPAN_REQUIRES_CONVERTIBLE_R(bool)
@@ -204,7 +204,7 @@ private:
 public: // raw access
     pointer raw_ptr() const noexcept { return ptr; }
 
-    pointer raw_bytes(size_t bytes) const {
+    pointer raw_bytes(size_t bytes) const may_throw {
         assertInvariants();
         if (bytes > 0) {
             if very_unlikely (ptr == nullptr)

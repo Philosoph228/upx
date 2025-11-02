@@ -119,6 +119,7 @@ forceinline ~CSelf() noexcept {}
         size_in_bytes = 0;
         assertInvariants();
     }
+
     // constructors from pointers
     CSelf(pointer first, XSpanCount count)
         : ptr(makePtr(first)), base(makeBase(first)),
@@ -177,6 +178,7 @@ forceinline ~CSelf() noexcept {}
                 makeNotNull((pointer) membuffer_get_void_ptr(mb))) {}
     CSelf(std::nullptr_t, MemBuffer &) XSPAN_DELETED_FUNCTION;
 #endif
+
     // disable constructors from nullptr to catch compile-time misuse
 private:
     CSelf(std::nullptr_t, XSpanCount) XSPAN_DELETED_FUNCTION;
@@ -404,7 +406,7 @@ public:
     }
 
 private:
-    pointer check_deref(pointer p) const {
+    pointer check_deref(pointer p) const may_throw {
         assertInvariants();
         if __acc_cte (!configRequirePtr && p == nullptr)
             xspan_fail_nullptr();
@@ -412,7 +414,7 @@ private:
             xspan_check_range(p, base, size_in_bytes - sizeof(T));
         return p;
     }
-    pointer check_deref(pointer p, ptrdiff_t n) const {
+    pointer check_deref(pointer p, ptrdiff_t n) const may_throw {
         assertInvariants();
         if __acc_cte (!configRequirePtr && p == nullptr)
             xspan_fail_nullptr();
@@ -422,7 +424,7 @@ private:
             xspan_check_range(p, base, size_in_bytes - sizeof(T));
         return p;
     }
-    pointer check_add(pointer p, ptrdiff_t n) const {
+    pointer check_add(pointer p, ptrdiff_t n) const may_throw {
         assertInvariants();
         if __acc_cte (!configRequirePtr && p == nullptr)
             xspan_fail_nullptr();
@@ -442,7 +444,7 @@ public: // raw access
     pointer raw_base() const noexcept { return base; }
     size_type raw_size_in_bytes() const noexcept { return size_in_bytes; }
 
-    pointer raw_bytes(size_t bytes) const {
+    pointer raw_bytes(size_t bytes) const may_throw {
         assertInvariants();
         if (bytes > 0) {
             if __acc_cte (!configRequirePtr && ptr == nullptr)
