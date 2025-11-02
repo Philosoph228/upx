@@ -25,6 +25,8 @@ RUN dpkg --add-architecture i386 \
         zip zlib1g-dev zoxide zsh zstd \
         # extra packages for compiling with "gcc -m32" and "gcc -mx32":
         g++-multilib gcc-multilib \
+    && apt-get install -y \
+        gcc-riscv64-linux-gnu \
     && true
 
 # install python2-minimal packages from Debian-11; REQUIRED
