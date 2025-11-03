@@ -54,6 +54,7 @@ jobs:
           rm -rf ./*.deb ./packages && ldconfig
           # install upx-stubtools
           curl -sS -L https://github.com/upx/upx-stubtools/releases/download/v20221212/bin-upx-20221212.tar.xz | tar -xJ
+      - run: dpkg -l
       - name: Check out code
         run: |
           git config --global --add safe.directory '*' # needed when running in a container
