@@ -260,11 +260,11 @@ const char *upx_getenv(const char *envvar) noexcept {
 }
 
 // random value from libc; quality is not important for UPX
-int upx_rand(void) noexcept {
+int upx_rand() noexcept {
     return ::rand(); // NOLINT(clang-analyzer-security.insecureAPI.rand)
 }
 
-void upx_rand_init(void) noexcept {
+void upx_rand_init() noexcept {
     unsigned seed = 0;
     seed ^= UPX_VERSION_HEX;
 #if (!HAVE_GETTIMEOFDAY || (ACC_OS_DOS32 && defined(__DJGPP__))) && !defined(__wasi__)
@@ -420,6 +420,22 @@ void upx_std_stable_sort(void *array, size_t n, upx_compare_func_t compare) {
 #endif
 }
 
+#if UPX_CONFIG_USE_STABLE_SORT
+// instantiate function templates for all element sizes we need; efficient
+// run-time, but code size bloat (about 4KiB code size for each function
+// with my current libstdc++); not really needed as libc qsort() is
+// good enough for our use cases
+template void upx_std_stable_sort<1>(void *, size_t, upx_compare_func_t);
+template void upx_std_stable_sort<2>(void *, size_t, upx_compare_func_t);
+template void upx_std_stable_sort<4>(void *, size_t, upx_compare_func_t);
+template void upx_std_stable_sort<5>(void *, size_t, upx_compare_func_t);
+template void upx_std_stable_sort<8>(void *, size_t, upx_compare_func_t);
+template void upx_std_stable_sort<16>(void *, size_t, upx_compare_func_t);
+template void upx_std_stable_sort<32>(void *, size_t, upx_compare_func_t);
+template void upx_std_stable_sort<56>(void *, size_t, upx_compare_func_t);
+template void upx_std_stable_sort<72>(void *, size_t, upx_compare_func_t);
+#endif // UPX_CONFIG_USE_STABLE_SORT
+
 TEST_CASE("upx_memswap") {
     auto check4 = [](int off1, int off2, int len, int a, int b, int c, int d) {
         byte p[4] = {0, 1, 2, 3};
@@ -472,22 +488,6 @@ TEST_CASE("upx_memswap") {
         CHECK(*array[3] == 22);
     }
 }
-
-#if UPX_CONFIG_USE_STABLE_SORT
-// instantiate function templates for all element sizes we need; efficient
-// run-time, but code size bloat (about 4KiB code size for each function
-// with my current libstdc++); not really needed as libc qsort() is
-// good enough for our use cases
-template void upx_std_stable_sort<1>(void *, size_t, upx_compare_func_t);
-template void upx_std_stable_sort<2>(void *, size_t, upx_compare_func_t);
-template void upx_std_stable_sort<4>(void *, size_t, upx_compare_func_t);
-template void upx_std_stable_sort<5>(void *, size_t, upx_compare_func_t);
-template void upx_std_stable_sort<8>(void *, size_t, upx_compare_func_t);
-template void upx_std_stable_sort<16>(void *, size_t, upx_compare_func_t);
-template void upx_std_stable_sort<32>(void *, size_t, upx_compare_func_t);
-template void upx_std_stable_sort<56>(void *, size_t, upx_compare_func_t);
-template void upx_std_stable_sort<72>(void *, size_t, upx_compare_func_t);
-#endif // UPX_CONFIG_USE_STABLE_SORT
 
 #if !defined(DOCTEST_CONFIG_DISABLE) && DEBUG
 #if __cplusplus >= 202002L // use C++20 std::next_permutation() to test all permutations

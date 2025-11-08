@@ -34,11 +34,6 @@ class CSelf {
 #endif
 
 public:
-    typedef T element_type;
-    typedef typename std::add_lvalue_reference<T>::type reference;
-    typedef typename std::add_pointer<T>::type pointer;
-    typedef size_t size_type;
-
     // befriend all
     template <class>
     friend struct PtrOrSpan;
@@ -46,6 +41,11 @@ public:
     friend struct PtrOrSpanOrNull;
     template <class>
     friend struct Span;
+
+    typedef T element_type;
+    typedef typename std::add_lvalue_reference<T>::type reference;
+    typedef typename std::add_pointer<T>::type pointer;
+    typedef size_t size_type;
 
 #if XSPAN_CONFIG_ENABLE_IMPLICIT_CONVERSION
 public:
@@ -449,9 +449,10 @@ public: // raw access
         if (bytes > 0) {
             if __acc_cte (!configRequirePtr && ptr == nullptr)
                 xspan_fail_nullptr();
-            if __acc_cte (configRequireBase || base != nullptr) {
+            if __acc_cte (configRequireBase || base != nullptr)
                 xspan_check_range(ptr, base, size_in_bytes - bytes);
-            }
+            if very_unlikely (__acc_cte(VALGRIND_CHECK_MEM_IS_ADDRESSABLE(ptr, bytes) != 0))
+                throwCantPack("raw_bytes valgrind-check-mem");
         }
         return ptr;
     }

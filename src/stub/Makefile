@@ -167,7 +167,7 @@ all: $$(all.targets)
 	@echo "timestamp" > $@
 .DELETE_ON_ERROR: .upx-stubtools-stamp
 %/.tmp-stamp:
-	@mkdir -p $(dir $@)
+	@mkdir -p "$(dir $@)"
 	@echo "timestamp" > $@
 .PRECIOUS: %/.tmp-stamp
 .all-stamp: $$(STUBS)
@@ -241,15 +241,15 @@ define tc
 endef
 
 # default tools
-tc.default.bin2h      = $(PYTHON3) $(top_srcdir)/src/stub/scripts/bin2h.py --ident=auto-stub
+tc.default.bin2h      = $(PYTHON3) "$(top_srcdir)/src/stub/scripts/bin2h.py" --ident=auto-stub
 ##tc.default.bin2h-c    = $(call tc,bin2h) --compress=14,15,0
 tc.default.bin2h-c    = $(call tc,bin2h) --compress=0
-tc.default.brandelf   = $(PYTHON3) $(top_srcdir)/src/stub/scripts/brandelf.py $(if $(tc_bfdname),--bfdname=$(tc_bfdname))
-tc.default.gpp_inc    = $(PYTHON3) $(top_srcdir)/src/stub/scripts/gpp_inc.py
-tc.default.gpp_mkdep  = $(PYTHON3) $(top_srcdir)/src/stub/scripts/gpp_inc.py -o /dev/null
+tc.default.brandelf   = $(PYTHON3) "$(top_srcdir)/src/stub/scripts/brandelf.py" $(if $(tc_bfdname),--bfdname=$(tc_bfdname))
+tc.default.gpp_inc    = $(PYTHON3) "$(top_srcdir)/src/stub/scripts/gpp_inc.py"
+tc.default.gpp_mkdep  = $(PYTHON3) "$(top_srcdir)/src/stub/scripts/gpp_inc.py" -o /dev/null
 tc.default.pp-as      = i386-linux-gcc-3.4.6 -E -nostdinc -x assembler-with-cpp -Wall
 tc.default.sstrip     = sstrip-20060518
-tc.default.xstrip     = $(PYTHON3) $(top_srcdir)/src/stub/scripts/xstrip.py
+tc.default.xstrip     = $(PYTHON3) "$(top_srcdir)/src/stub/scripts/xstrip.py"
 
 # default multiarch-binutils
 tc.default.m-ar       = multiarch-ar-2.17
@@ -319,7 +319,7 @@ endef
 
 define tc.default.f-embed_objinfo_without_xstrip_keep_dot_text
 	chmod a-x $1
-	$(call tc,objcopy)          -R .data -R .bss $1
+	$(call tc,objcopy) -R .data -R .bss $1
 	$(call tc,objcopy) -R .comment -R .note -R .note.GNU-stack -R .reginfo $1
 	$(call tc,objcopy) --strip-unneeded --keep-symbol=_start --keep-symbol=upx_so_main $1
 #

@@ -289,7 +289,7 @@ if(Threads_FOUND)
         if(NOT result)
             # failed; under MinGW be sure to use the posix-threads and NOT the win32-threads version
             if(UPX_CONFIG_REQUIRE_THREADS OR (UPX_CONFIG_EXPECT_THREADS AND NOT UPX_CONFIG_DISABLE_THREADS))
-                message(WARNING "Threads FAILED ${f}: ${output}") # output from try_compile
+                message(WARNING "Threads FAILED ${f}: ${output}") # output from try_compile()
             endif()
             set(Threads_FOUND OFF)
             break()

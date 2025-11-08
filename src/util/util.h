@@ -181,8 +181,8 @@ noinline const char *upx_getenv(const char *envvar) noexcept;
 
 noinline void upx_memswap(void *a, void *b, size_t bytes) noexcept;
 
-noinline void upx_rand_init(void) noexcept;
-noinline int upx_rand(void) noexcept;
+noinline void upx_rand_init() noexcept;
+noinline int upx_rand() noexcept;
 
 typedef int(__acc_cdecl_qsort *upx_compare_func_t)(const void *, const void *);
 typedef void (*upx_sort_func_t)(void *array, size_t n, size_t element_size, upx_compare_func_t);
