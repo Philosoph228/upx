@@ -162,7 +162,7 @@ protected:
                              unsigned f_len, // subset of [*i_ptr, +i_len)
                              byte *const hdr_ptr, unsigned hdr_len,
                              Filter *parm_ft, // updated
-                             unsigned overlap_range, upx_compress_config_t const *cconf,
+                             unsigned overlap_range, const upx_compress_config_t *cconf,
                              int filter_strategy, bool inhibit_compression_check = false);
 
     // util for verifying overlapping decompression
@@ -294,10 +294,10 @@ protected:
     }
     template <class T, class = enable_if_te64<T> >
     inline unsigned get_te64_32(const T *p) const {
-        upx_uint64_t val = get_te64(p);
-        if (val >> 32)
-            throwCantPack("64-bit value too big %#llx", val);
-        return (unsigned) val;
+        upx_uint64_t v = bele->get64(p);
+        if ((v >> 32) != 0)
+            throwCantPack("64-bit value too big %#llx", v);
+        return (unsigned) v;
     }
     template <class T, class = enable_if_te64<T> >
     inline upx_uint64_t get_te64(const T *p) const noexcept {

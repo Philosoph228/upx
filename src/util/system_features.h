@@ -75,6 +75,6 @@
 #define _LIBCPP_HAS_ALIGNED_ALLOCATION         0
 #endif
 #endif
-#endif
+#endif // _LIBCPP_HAS_NO_LIBRARY_ALIGNED_ALLOCATION
 
 /* vim:set ts=4 sw=4 et: */

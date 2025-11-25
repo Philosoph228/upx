@@ -1480,19 +1480,18 @@ void PeFile::processTls2(Reloc *const rel, const Interval *const iv, unsigned ne
 
     if (sotls == 0)
         return;
-    // add new relocation entries
 
+    // add new relocation entries
     if (tls_handler_offset > 0 && tls_handler_offset_reloc > 0)
         rel->add_reloc(tls_handler_offset + tls_handler_offset_reloc, reloc_type);
 
-    unsigned ic;
     // NEW: if TLS callbacks are used, relocate the VA of the callback chain, too - Stefan Widmann
-    for (ic = 0; ic < (unsigned) (use_tls_callbacks ? 4 : 3); ic++)
+    for (unsigned ic = 0; ic < (unsigned) (use_tls_callbacks ? 4 : 3); ic++)
         rel->add_reloc(newaddr + ic * cb_size, reloc_type);
 
     SPAN_S_VAR(tls, const tlsp, mb_otls);
     // now the relocation entries in the tls data area
-    for (ic = 0; ic < iv->ivnum; ic++) {
+    for (unsigned ic = 0; ic < iv->ivnum; ic++) {
         SPAN_S_VAR(byte, const pp,
                    otls + (iv->ivarr[ic].start - (tlsp->datastart - imagebase) + sizeof(tls)));
         LEXX *const p = (LEXX *) raw_bytes(pp, sizeof(LEXX));

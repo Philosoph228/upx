@@ -292,30 +292,47 @@ TEST_CASE("MemBuffer core") {
 }
 
 TEST_CASE("MemBuffer global overloads") {
-    MemBuffer mb(1);
+    MemBuffer mb1(1);
     MemBuffer mb4(4);
-    mb.clear();
+    mb1.clear();
     mb4.clear();
-    CHECK(memcmp(mb, "\x00", 1) == 0);
-    CHECK_THROWS(memcmp(mb, "\x00\x00", 2)); // NOLINT(bugprone-unused-return-value)
-    CHECK_THROWS(memcmp("\x00\x00", mb, 2)); // NOLINT(bugprone-unused-return-value)
-    CHECK_THROWS(memcmp(mb, mb4, 2));        // NOLINT(bugprone-unused-return-value)
-    CHECK_THROWS(memcmp(mb4, mb, 2));        // NOLINT(bugprone-unused-return-value)
-    CHECK_NOTHROW(memset(mb, 255, 1));
-    CHECK_THROWS(memset(mb, 254, 2));
-    CHECK(mb[0] == 255);
-    CHECK_THROWS(get_be16(mb));
-    CHECK_THROWS(get_be32(mb));
-    CHECK_THROWS(get_be64(mb));
-    CHECK_THROWS(get_le16(mb));
-    CHECK_THROWS(get_le32(mb));
-    CHECK_THROWS(get_le64(mb));
+    CHECK(memcmp(mb1, "\x00", 1) == 0);
+    CHECK_THROWS(memcmp(mb1, "\x00\x00", 2)); // NOLINT(bugprone-unused-return-value)
+    CHECK_THROWS(memcmp("\x00\x00", mb1, 2)); // NOLINT(bugprone-unused-return-value)
+    CHECK_THROWS(memcmp(mb1, mb4, 2));        // NOLINT(bugprone-unused-return-value)
+    CHECK_THROWS(memcmp(mb4, mb1, 2));        // NOLINT(bugprone-unused-return-value)
+    CHECK_NOTHROW(memset(mb1, 255, 1));
+    CHECK_THROWS(memset(mb1, 254, 2));
+    CHECK(mb1[0] == 255);
+
+    CHECK_THROWS(get_ne16(mb1));
+    CHECK_THROWS(get_ne24(mb1));
+    CHECK_THROWS(get_ne32(mb1));
+    CHECK_THROWS(get_ne64(mb1));
+    CHECK_THROWS(get_be16(mb1));
+    CHECK_THROWS(get_be24(mb1));
+    CHECK_THROWS(get_be32(mb1));
+    CHECK_THROWS(get_be64(mb1));
+    CHECK_THROWS(get_le16(mb1));
+    CHECK_THROWS(get_le24(mb1));
+    CHECK_THROWS(get_le32(mb1));
+    CHECK_THROWS(get_le64(mb1));
+
+    CHECK_NOTHROW(get_ne16(mb4));
+    CHECK_NOTHROW(get_ne24(mb4));
+    CHECK_NOTHROW(get_ne32(mb4));
+    CHECK_THROWS(get_ne64(mb4));
     CHECK_NOTHROW(get_be16(mb4));
+    CHECK_NOTHROW(get_be24(mb4));
     CHECK_NOTHROW(get_be32(mb4));
     CHECK_THROWS(get_be64(mb4));
     CHECK_NOTHROW(get_le16(mb4));
+    CHECK_NOTHROW(get_le24(mb4));
     CHECK_NOTHROW(get_le32(mb4));
     CHECK_THROWS(get_le64(mb4));
+
+    CHECK_NOTHROW(set_ne32(mb4, 0));
+    CHECK_THROWS(set_ne64(mb4, 0));
     CHECK_NOTHROW(set_be32(mb4, 0));
     CHECK_THROWS(set_be64(mb4, 0));
     CHECK_NOTHROW(set_le32(mb4, 0));
@@ -324,13 +341,13 @@ TEST_CASE("MemBuffer global overloads") {
 
 TEST_CASE("MemBuffer unused 1") {
     MemBuffer mb;
-    CHECK(mb.raw_ptr() == nullptr);
-    CHECK(mb.raw_size_in_bytes() == 0);
+    (void) mb;
 }
 
 TEST_CASE("MemBuffer unused 2") {
     MemBuffer mb;
-    (void) mb;
+    CHECK(mb.raw_ptr() == nullptr);
+    CHECK(mb.raw_size_in_bytes() == 0);
 }
 
 TEST_CASE("MemBuffer array access") {

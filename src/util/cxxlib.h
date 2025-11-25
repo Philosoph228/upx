@@ -192,58 +192,74 @@ forceinline constexpr void set_le64(byte *p, upx_uint64_t v) noexcept {
 forceinline constexpr upx_uint16_t get_ne16(const byte *p) noexcept {
 #if (ACC_ABI_BIG_ENDIAN)
     return get_be16(p);
-#else
+#elif (ACC_ABI_LITTLE_ENDIAN)
     return get_le16(p);
+#else
+#error "ACC_ABI_ENDIAN"
 #endif
 }
 forceinline constexpr upx_uint32_t get_ne24(const byte *p) noexcept {
 #if (ACC_ABI_BIG_ENDIAN)
     return get_be24(p);
-#else
+#elif (ACC_ABI_LITTLE_ENDIAN)
     return get_le24(p);
+#else
+#error "ACC_ABI_ENDIAN"
 #endif
 }
 forceinline constexpr upx_uint32_t get_ne32(const byte *p) noexcept {
 #if (ACC_ABI_BIG_ENDIAN)
     return get_be32(p);
-#else
+#elif (ACC_ABI_LITTLE_ENDIAN)
     return get_le32(p);
+#else
+#error "ACC_ABI_ENDIAN"
 #endif
 }
 forceinline constexpr upx_uint64_t get_ne64(const byte *p) noexcept {
 #if (ACC_ABI_BIG_ENDIAN)
     return get_be64(p);
-#else
+#elif (ACC_ABI_LITTLE_ENDIAN)
     return get_le64(p);
+#else
+#error "ACC_ABI_ENDIAN"
 #endif
 }
 
 forceinline constexpr void set_ne16(byte *p, upx_uint16_t v) noexcept {
 #if (ACC_ABI_BIG_ENDIAN)
     set_be16(p, v);
-#else
+#elif (ACC_ABI_LITTLE_ENDIAN)
     set_le16(p, v);
+#else
+#error "ACC_ABI_ENDIAN"
 #endif
 }
 forceinline constexpr void set_ne24(byte *p, upx_uint32_t v) noexcept {
 #if (ACC_ABI_BIG_ENDIAN)
     set_be24(p, v);
-#else
+#elif (ACC_ABI_LITTLE_ENDIAN)
     set_le24(p, v);
+#else
+#error "ACC_ABI_ENDIAN"
 #endif
 }
 forceinline constexpr void set_ne32(byte *p, upx_uint32_t v) noexcept {
 #if (ACC_ABI_BIG_ENDIAN)
     set_be32(p, v);
-#else
+#elif (ACC_ABI_LITTLE_ENDIAN)
     set_le32(p, v);
+#else
+#error "ACC_ABI_ENDIAN"
 #endif
 }
 forceinline constexpr void set_ne64(byte *p, upx_uint64_t v) noexcept {
 #if (ACC_ABI_BIG_ENDIAN)
     set_be64(p, v);
-#else
+#elif (ACC_ABI_LITTLE_ENDIAN)
     set_le64(p, v);
+#else
+#error "ACC_ABI_ENDIAN"
 #endif
 }
 
@@ -357,16 +373,17 @@ private:                                                                        
 #define UPX_CXX_DISABLE_NEW_DELETE_NO_VIRTUAL(Klass) private:
 #endif
 
-class noncopyable {
+class NonCopyAble {
 protected:
-    forceinline constexpr noncopyable() noexcept {}
+    forceinline constexpr NonCopyAble() noexcept {}
 #if __cplusplus >= 202002L
-    forceinline constexpr ~noncopyable() noexcept = default;
+    forceinline constexpr ~NonCopyAble() noexcept = default;
 #else
-    forceinline ~noncopyable() noexcept = default;
+    forceinline ~NonCopyAble() noexcept = default;
 #endif
-    UPX_CXX_DISABLE_COPY_MOVE(noncopyable)
+    UPX_CXX_DISABLE_COPY_MOVE(NonCopyAble)
 };
+typedef NonCopyAble noncopyable;
 
 /*************************************************************************
 // <type_traits>

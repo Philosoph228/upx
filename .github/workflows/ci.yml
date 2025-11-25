@@ -104,7 +104,7 @@ jobs:
       - run: (sudo dmidecode | sed -n -e '/System Information/,/^$/p') || true
       - run: sudo dmidecode -q || true
       - run: sudo dmidecode || true
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with: { submodules: true }
       - run: make build/extra/gcc/all
       - run: make build/extra/clang/all
@@ -183,7 +183,7 @@ jobs:
           sudo apt-get install -y wine wine32:i386 wine64
           ls -l /usr/bin/wine*
           mkdir -p -v ~/.wine && wineboot --init
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with: { submodules: true }
       - name: Check out test suite
         run: git clone --depth=1 https://github.com/upx/upx-testsuite ../deps/upx-testsuite
@@ -324,7 +324,7 @@ jobs:
             # TODO FIXME: UPX on macos-13+ is broken => disable run-packed for now
             macos-[12][3456]*) echo "UPX_CONFIG_DISABLE_RUN_PACKED_TEST=ON" >> $GITHUB_ENV ;;
           esac
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with: { submodules: true }
       - name: Check out test suite
         if: ${{ matrix.testsuite }}
@@ -425,7 +425,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - run: git config --global core.autocrlf false
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with: { submodules: true }
       - name: Check out test suite
         run: git clone --depth=1 https://github.com/upx/upx-testsuite ../deps/upx-testsuite
@@ -504,7 +504,7 @@ jobs:
       B: release
     steps:
       - run: git config --global core.autocrlf false
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with: { submodules: true }
       - name: Prepare sources and Check out test suite
         run: |
@@ -640,7 +640,7 @@ jobs:
           git config --global --add safe.directory '*' # needed when running in a container
           mkdir -p ~/.parallel && : > ~/.parallel/$(echo 6305-4721 | tr 0-7 leticlwi)
       - run: (sudo dmidecode | sed -n -e '/System Information/,/^$/p') || true
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with: { submodules: true }
       - name: ${{ format('Install Zig {0}', env.ZIG_DIST_VERSION) }}
         run: |

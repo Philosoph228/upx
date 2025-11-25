@@ -204,6 +204,10 @@ inline unsigned get_ne16(const C<T> &a) {
     return get_ne16(a.raw_bytes(2));
 }
 template <class T>
+inline unsigned get_ne24(const C<T> &a) {
+    return get_ne24(a.raw_bytes(3));
+}
+template <class T>
 inline unsigned get_ne32(const C<T> &a) {
     return get_ne32(a.raw_bytes(4));
 }
@@ -215,6 +219,10 @@ inline upx_uint64_t get_ne64(const C<T> &a) {
 template <class T>
 inline unsigned get_be16(const C<T> &a) {
     return get_be16(a.raw_bytes(2));
+}
+template <class T>
+inline unsigned get_be24(const C<T> &a) {
+    return get_be24(a.raw_bytes(3));
 }
 template <class T>
 inline unsigned get_be32(const C<T> &a) {
@@ -247,6 +255,10 @@ inline void set_ne16(const C<T> &a, unsigned v) {
     return set_ne16(a.raw_bytes(2), v);
 }
 template <class T>
+inline void set_ne24(const C<T> &a, unsigned v) {
+    return set_ne24(a.raw_bytes(3), v);
+}
+template <class T>
 inline void set_ne32(const C<T> &a, unsigned v) {
     return set_ne32(a.raw_bytes(4), v);
 }
@@ -258,6 +270,10 @@ inline void set_ne64(const C<T> &a, upx_uint64_t v) {
 template <class T>
 inline void set_be16(const C<T> &a, unsigned v) {
     return set_be16(a.raw_bytes(2), v);
+}
+template <class T>
+inline void set_be24(const C<T> &a, unsigned v) {
+    return set_be24(a.raw_bytes(3), v);
 }
 template <class T>
 inline void set_be32(const C<T> &a, unsigned v) {

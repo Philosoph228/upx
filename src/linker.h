@@ -35,7 +35,7 @@ class ElfLinker /*not_final*/ : private upx::noncopyable {
     friend class Packer;
 
 public:
-    const N_BELE_RTP::AbstractPolicy *const bele; // target endianness
+    const N_BELE_RTP::AbstractPolicy *const bele; // TE - Target Endianness
 protected:
     struct Section;
     struct Symbol;

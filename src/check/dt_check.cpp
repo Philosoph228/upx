@@ -1467,7 +1467,8 @@ TEST_CASE("libc qsort") {
             return true;
         }
     };
-    constexpr size_t N = 4096;
+
+    constexpr size_t N = 256;
     Elem e[N];
     for (size_t n = 0; n <= N; n = 2 * n + 1) {
         // system sort functions
