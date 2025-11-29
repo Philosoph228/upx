@@ -87,6 +87,7 @@ MemBuffer::~MemBuffer() noexcept { this->dealloc(); }
 // skip == offset, take == size_in_bytes
 void *MemBuffer::subref_impl(const char *errfmt, size_t skip, size_t take) {
     debug_set(debug.last_return_address_subref, upx_return_address());
+    checkState();
     // check overrun and wrap-around
     if (skip + take > size_in_bytes || skip + take < skip) {
         char buf[100];
@@ -134,13 +135,13 @@ void MemBuffer::allocForDecompression(unsigned uncompressed_size, unsigned extra
     debug_set(debug.last_return_address_alloc, upx_return_address());
 }
 
-void MemBuffer::fill(unsigned off, unsigned len, int value) {
+void MemBuffer::fill(size_t off, size_t bytes, int value) {
     debug_set(debug.last_return_address_fill, upx_return_address());
     checkState();
-    if (off > size_in_bytes || len > size_in_bytes || off + len > size_in_bytes)
+    if (off > size_in_bytes || bytes > size_in_bytes || off + bytes > size_in_bytes)
         throwCantPack("MemBuffer::fill out of range; take care!");
-    if (len > 0)
-        memset(ptr + off, value, len);
+    if (bytes > 0)
+        memset(ptr + off, value, bytes);
 }
 
 /*************************************************************************
@@ -249,6 +250,17 @@ void MemBuffer::dealloc() noexcept {
 //
 **************************************************************************/
 
+TEST_CASE("MemBuffer unused 1") {
+    MemBuffer mb;
+    (void) mb;
+}
+
+TEST_CASE("MemBuffer unused 2") {
+    MemBuffer mb;
+    CHECK(mb.raw_ptr() == nullptr);
+    CHECK(mb.raw_size_in_bytes() == 0);
+}
+
 TEST_CASE("MemBuffer core") {
     constexpr size_t N = 64;
     MemBuffer mb;
@@ -292,62 +304,158 @@ TEST_CASE("MemBuffer core") {
 }
 
 TEST_CASE("MemBuffer global overloads") {
-    MemBuffer mb1(1);
-    MemBuffer mb4(4);
-    mb1.clear();
-    mb4.clear();
-    CHECK(memcmp(mb1, "\x00", 1) == 0);
-    CHECK_THROWS(memcmp(mb1, "\x00\x00", 2)); // NOLINT(bugprone-unused-return-value)
-    CHECK_THROWS(memcmp("\x00\x00", mb1, 2)); // NOLINT(bugprone-unused-return-value)
-    CHECK_THROWS(memcmp(mb1, mb4, 2));        // NOLINT(bugprone-unused-return-value)
-    CHECK_THROWS(memcmp(mb4, mb1, 2));        // NOLINT(bugprone-unused-return-value)
-    CHECK_NOTHROW(memset(mb1, 255, 1));
-    CHECK_THROWS(memset(mb1, 254, 2));
-    CHECK(mb1[0] == 255);
+    {
+        MemBuffer mb1(1);
+        MemBuffer mb4(4);
+        mb1.clear();
+        mb4.clear();
+        CHECK(memcmp(mb1, "\x00", 1) == 0);
+        CHECK_THROWS(memcmp(mb1, "\x00\x00", 2)); // NOLINT(bugprone-unused-return-value)
+        CHECK_THROWS(memcmp("\x00\x00", mb1, 2)); // NOLINT(bugprone-unused-return-value)
+        CHECK_THROWS(memcmp(mb1, mb4, 2));        // NOLINT(bugprone-unused-return-value)
+        CHECK_THROWS(memcmp(mb4, mb1, 2));        // NOLINT(bugprone-unused-return-value)
+        CHECK_NOTHROW(memset(mb1, 255, 1));
+        CHECK_THROWS(memset(mb1, 254, 2));
+        CHECK(mb1[0] == 255);
+    }
 
-    CHECK_THROWS(get_ne16(mb1));
-    CHECK_THROWS(get_ne24(mb1));
-    CHECK_THROWS(get_ne32(mb1));
-    CHECK_THROWS(get_ne64(mb1));
-    CHECK_THROWS(get_be16(mb1));
-    CHECK_THROWS(get_be24(mb1));
-    CHECK_THROWS(get_be32(mb1));
-    CHECK_THROWS(get_be64(mb1));
-    CHECK_THROWS(get_le16(mb1));
-    CHECK_THROWS(get_le24(mb1));
-    CHECK_THROWS(get_le32(mb1));
-    CHECK_THROWS(get_le64(mb1));
-
-    CHECK_NOTHROW(get_ne16(mb4));
-    CHECK_NOTHROW(get_ne24(mb4));
-    CHECK_NOTHROW(get_ne32(mb4));
-    CHECK_THROWS(get_ne64(mb4));
-    CHECK_NOTHROW(get_be16(mb4));
-    CHECK_NOTHROW(get_be24(mb4));
-    CHECK_NOTHROW(get_be32(mb4));
-    CHECK_THROWS(get_be64(mb4));
-    CHECK_NOTHROW(get_le16(mb4));
-    CHECK_NOTHROW(get_le24(mb4));
-    CHECK_NOTHROW(get_le32(mb4));
-    CHECK_THROWS(get_le64(mb4));
-
-    CHECK_NOTHROW(set_ne32(mb4, 0));
-    CHECK_THROWS(set_ne64(mb4, 0));
-    CHECK_NOTHROW(set_be32(mb4, 0));
-    CHECK_THROWS(set_be64(mb4, 0));
-    CHECK_NOTHROW(set_le32(mb4, 0));
-    CHECK_THROWS(set_le64(mb4, 0));
-}
-
-TEST_CASE("MemBuffer unused 1") {
-    MemBuffer mb;
-    (void) mb;
-}
-
-TEST_CASE("MemBuffer unused 2") {
-    MemBuffer mb;
-    CHECK(mb.raw_ptr() == nullptr);
-    CHECK(mb.raw_size_in_bytes() == 0);
+#if DEBUG || 0
+    for (size_t i = 1; i <= 16; i++) {
+        MemBuffer mb(i);
+        mb.clear();
+        if (i < 2) {
+            CHECK_THROWS(get_ne16(mb));
+            CHECK_THROWS(get_be16(mb));
+            CHECK_THROWS(get_le16(mb));
+            CHECK_THROWS(set_ne16(mb, 0));
+            CHECK_THROWS(set_be16(mb, 0));
+            CHECK_THROWS(set_le16(mb, 0));
+        } else {
+            CHECK_NOTHROW(get_ne16(mb));
+            CHECK_NOTHROW(get_be16(mb));
+            CHECK_NOTHROW(get_le16(mb));
+            CHECK_NOTHROW(set_ne16(mb, 0));
+            CHECK_NOTHROW(set_be16(mb, 0));
+            CHECK_NOTHROW(set_le16(mb, 0));
+        }
+        if (i < 3) {
+            CHECK_THROWS(get_ne24(mb));
+            CHECK_THROWS(get_be24(mb));
+            CHECK_THROWS(get_le24(mb));
+            CHECK_THROWS(set_ne24(mb, 0));
+            CHECK_THROWS(set_be24(mb, 0));
+            CHECK_THROWS(set_le24(mb, 0));
+        } else {
+            CHECK_NOTHROW(get_ne24(mb));
+            CHECK_NOTHROW(get_be24(mb));
+            CHECK_NOTHROW(get_le24(mb));
+            CHECK_NOTHROW(set_ne24(mb, 0));
+            CHECK_NOTHROW(set_be24(mb, 0));
+            CHECK_NOTHROW(set_le24(mb, 0));
+        }
+        if (i < 4) {
+            CHECK_THROWS(get_ne32(mb));
+            CHECK_THROWS(get_be32(mb));
+            CHECK_THROWS(get_le32(mb));
+            CHECK_THROWS(set_ne32(mb, 0));
+            CHECK_THROWS(set_be32(mb, 0));
+            CHECK_THROWS(set_le32(mb, 0));
+        } else {
+            CHECK_NOTHROW(get_ne32(mb));
+            CHECK_NOTHROW(get_be32(mb));
+            CHECK_NOTHROW(get_le32(mb));
+            CHECK_NOTHROW(set_ne32(mb, 0));
+            CHECK_NOTHROW(set_be32(mb, 0));
+            CHECK_NOTHROW(set_le32(mb, 0));
+        }
+        if (i < 8) {
+            CHECK_THROWS(get_ne64(mb));
+            CHECK_THROWS(get_be64(mb));
+            CHECK_THROWS(get_le64(mb));
+            CHECK_THROWS(set_ne64(mb, 0));
+            CHECK_THROWS(set_be64(mb, 0));
+            CHECK_THROWS(set_le64(mb, 0));
+        } else {
+            CHECK_NOTHROW(get_ne64(mb));
+            CHECK_NOTHROW(get_be64(mb));
+            CHECK_NOTHROW(get_le64(mb));
+            CHECK_NOTHROW(set_ne64(mb, 0));
+            CHECK_NOTHROW(set_be64(mb, 0));
+            CHECK_NOTHROW(set_le64(mb, 0));
+        }
+        //
+        CHECK_NOTHROW(mb.subref("", 0, 0));
+        CHECK_NOTHROW(mb.subref("", 0, i));
+        CHECK_NOTHROW(mb.subref("", i, 0));
+        CHECK_NOTHROW(mb.subref("", i - 1, 1));
+        CHECK_THROWS(mb.subref("", 0, i + 1));
+        CHECK_THROWS(mb.subref("", i + 1, 0));
+        CHECK_THROWS(mb.subref("", i, 1));
+        CHECK_THROWS(mb.subref("", (size_t) -1, 0));
+        CHECK_THROWS(mb.subref("", (size_t) -1, i));
+        //
+        if (i < 2) {
+            CHECK_THROWS(mb.subref("", 0, sizeof(NE16)));
+            CHECK_THROWS(mb.subref("", 0, sizeof(BE16)));
+            CHECK_THROWS(mb.subref("", 0, sizeof(LE16)));
+        } else {
+            CHECK_NOTHROW(mb.subref("", 0, sizeof(NE16)));
+            CHECK_NOTHROW(mb.subref("", 0, sizeof(BE16)));
+            CHECK_NOTHROW(mb.subref("", 0, sizeof(LE16)));
+        }
+        if (i < 4) {
+            CHECK_THROWS(mb.subref("", 0, sizeof(NE32)));
+            CHECK_THROWS(mb.subref("", 0, sizeof(BE32)));
+            CHECK_THROWS(mb.subref("", 0, sizeof(LE32)));
+        } else {
+            CHECK_NOTHROW(mb.subref("", 0, sizeof(NE32)));
+            CHECK_NOTHROW(mb.subref("", 0, sizeof(BE32)));
+            CHECK_NOTHROW(mb.subref("", 0, sizeof(LE32)));
+        }
+        if (i < 8) {
+            CHECK_THROWS(mb.subref("", 0, sizeof(NE64)));
+            CHECK_THROWS(mb.subref("", 0, sizeof(BE64)));
+            CHECK_THROWS(mb.subref("", 0, sizeof(LE64)));
+        } else {
+            CHECK_NOTHROW(mb.subref("", 0, sizeof(NE64)));
+            CHECK_NOTHROW(mb.subref("", 0, sizeof(BE64)));
+            CHECK_NOTHROW(mb.subref("", 0, sizeof(LE64)));
+        }
+        //
+        CHECK_NOTHROW(mb.subref_u<byte *>("", 0));
+        CHECK_NOTHROW(mb.subref_u<byte *>("", i - 1));
+        CHECK_THROWS(mb.subref_u<byte *>("", i));
+        CHECK_THROWS(mb.subref_u<byte *>("", (size_t) -1));
+        //
+        if (i < 2) {
+            CHECK_THROWS(mb.subref_u<NE16 *>("", 0));
+            CHECK_THROWS(mb.subref_u<BE16 *>("", 0));
+            CHECK_THROWS(mb.subref_u<LE16 *>("", 0));
+        } else {
+            CHECK_NOTHROW(mb.subref_u<NE16 *>("", 0));
+            CHECK_NOTHROW(mb.subref_u<BE16 *>("", 0));
+            CHECK_NOTHROW(mb.subref_u<LE16 *>("", 0));
+        }
+        if (i < 4) {
+            CHECK_THROWS(mb.subref_u<NE32 *>("", 0));
+            CHECK_THROWS(mb.subref_u<BE32 *>("", 0));
+            CHECK_THROWS(mb.subref_u<LE32 *>("", 0));
+        } else {
+            CHECK_NOTHROW(mb.subref_u<NE32 *>("", 0));
+            CHECK_NOTHROW(mb.subref_u<BE32 *>("", 0));
+            CHECK_NOTHROW(mb.subref_u<LE32 *>("", 0));
+        }
+        if (i < 8) {
+            CHECK_THROWS(mb.subref_u<NE64 *>("", 0));
+            CHECK_THROWS(mb.subref_u<BE64 *>("", 0));
+            CHECK_THROWS(mb.subref_u<LE64 *>("", 0));
+        } else {
+            CHECK_NOTHROW(mb.subref_u<NE64 *>("", 0));
+            CHECK_NOTHROW(mb.subref_u<BE64 *>("", 0));
+            CHECK_NOTHROW(mb.subref_u<LE64 *>("", 0));
+        }
+    }
+#endif
 }
 
 TEST_CASE("MemBuffer array access") {

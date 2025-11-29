@@ -41,9 +41,9 @@ public:
     typedef T element_type;
     typedef typename std::add_lvalue_reference<T>::type reference;
     typedef typename std::add_pointer<T>::type pointer;
-    typedef unsigned size_type; // limited by UPX_RSIZE_MAX
     typedef pointer iterator;
     typedef typename std::add_pointer<const T>::type const_iterator;
+    typedef unsigned size_type; // limited by UPX_RSIZE_MAX
 protected:
     static const size_t element_size = sizeof(element_type);
 
@@ -194,11 +194,11 @@ public:
     static unsigned getSizeForDecompression(unsigned uncompressed_size, unsigned extra = 0)
         may_throw;
 
-    void alloc(upx_uint64_t bytes) may_throw;
+    noinline void alloc(upx_uint64_t bytes) may_throw;
     void allocForCompression(unsigned uncompressed_size, unsigned extra = 0) may_throw;
     void allocForDecompression(unsigned uncompressed_size, unsigned extra = 0) may_throw;
 
-    void dealloc() noexcept;
+    noinline void dealloc() noexcept;
     void checkState() const may_throw;
 
     // explicit conversion
@@ -208,8 +208,8 @@ public:
     unsigned getSize() const noexcept { return size_in_bytes; } // note: element_size == 1
 
     // util
-    noinline void fill(unsigned off, unsigned len, int value) may_throw;
-    forceinline void clear(unsigned off, unsigned len) may_throw { fill(off, len, 0); }
+    noinline void fill(size_t off, size_t bytes, int value) may_throw;
+    forceinline void clear(size_t off, size_t bytes) may_throw { fill(off, bytes, 0); }
     forceinline void clear() may_throw { fill(0, size_in_bytes, 0); }
 
     // If the entire range [skip, skip+take) is inside the buffer,
@@ -219,9 +219,19 @@ public:
     forceinline pointer subref(const char *errfmt, size_t skip, size_t take) may_throw {
         return (pointer) subref_impl(errfmt, skip, take);
     }
+    template <class U>
+    forceinline U subref_u(const char *errfmt, size_t skip) may_throw {
+        COMPILE_TIME_ASSERT(std::is_pointer<U>::value)
+        return (U) subref_impl(errfmt, skip, sizeof(typename std::remove_pointer<U>::type));
+    }
+    template <class U>
+    forceinline U subref_u(const char *errfmt, size_t skip, size_t take) may_throw {
+        COMPILE_TIME_ASSERT(std::is_pointer<U>::value)
+        return (U) subref_impl(errfmt, skip, take);
+    }
 
 private:
-    void *subref_impl(const char *errfmt, size_t skip, size_t take) may_throw;
+    noinline void *subref_impl(const char *errfmt, size_t skip, size_t take) may_throw;
 
     // static debug stats
     struct Stats {
