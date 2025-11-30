@@ -802,7 +802,7 @@ int upx_doctest_check();
 // util/membuffer.h
 class MemBuffer;
 void *membuffer_get_void_ptr(MemBuffer &mb) noexcept;
-unsigned membuffer_get_size(MemBuffer &mb) noexcept;
+unsigned membuffer_get_size_in_bytes(MemBuffer &mb) noexcept;
 
 // main.cpp
 extern const char *progname;

@@ -92,7 +92,7 @@ XSPAN_FWD_TU_VOIDPTR(int) memcmp(const C<T> &a, const E<U> &b, size_t n) {
 #endif
 
 template <class T>
-inline void *memcpy(C<T> a, const void *b, size_t n) {
+inline void *memcpy(const C<T> a, const void *b, size_t n) {
     return memcpy(a.raw_bytes(n), b, n);
 }
 template <class T>
@@ -114,7 +114,7 @@ XSPAN_FWD_TU_VOIDPTR(void *) memcpy(const C<T> &a, const E<U> &b, size_t n) {
 #endif
 
 template <class T>
-inline void *memmove(C<T> a, const void *b, size_t n) {
+inline void *memmove(const C<T> a, const void *b, size_t n) {
     return memmove(a.raw_bytes(n), b, n);
 }
 template <class T>

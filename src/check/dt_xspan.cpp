@@ -871,6 +871,110 @@ TEST_CASE("PtrOrSpan int") {
 }
 
 /*************************************************************************
+//
+**************************************************************************/
+
+#ifdef UPX_VERSION_HEX
+
+namespace {
+template <class T>
+static noinline void check_bele(T mb, size_t i) {
+    if (i < 2) {
+        CHECK_THROWS(get_ne16(mb));
+        CHECK_THROWS(get_be16(mb));
+        CHECK_THROWS(get_le16(mb));
+        CHECK_THROWS(set_ne16(mb, 0));
+        CHECK_THROWS(set_be16(mb, 0));
+        CHECK_THROWS(set_le16(mb, 0));
+    } else {
+        CHECK_NOTHROW(get_ne16(mb));
+        CHECK_NOTHROW(get_be16(mb));
+        CHECK_NOTHROW(get_le16(mb));
+        CHECK_NOTHROW(set_ne16(mb, 0));
+        CHECK_NOTHROW(set_be16(mb, 0));
+        CHECK_NOTHROW(set_le16(mb, 0));
+    }
+    if (i < 3) {
+        CHECK_THROWS(get_ne24(mb));
+        CHECK_THROWS(get_be24(mb));
+        CHECK_THROWS(get_le24(mb));
+        CHECK_THROWS(set_ne24(mb, 0));
+        CHECK_THROWS(set_be24(mb, 0));
+        CHECK_THROWS(set_le24(mb, 0));
+    } else {
+        CHECK_NOTHROW(get_ne24(mb));
+        CHECK_NOTHROW(get_be24(mb));
+        CHECK_NOTHROW(get_le24(mb));
+        CHECK_NOTHROW(set_ne24(mb, 0));
+        CHECK_NOTHROW(set_be24(mb, 0));
+        CHECK_NOTHROW(set_le24(mb, 0));
+    }
+    if (i < 4) {
+        CHECK_THROWS(get_ne32(mb));
+        CHECK_THROWS(get_be32(mb));
+        CHECK_THROWS(get_le32(mb));
+        CHECK_THROWS(set_ne32(mb, 0));
+        CHECK_THROWS(set_be32(mb, 0));
+        CHECK_THROWS(set_le32(mb, 0));
+    } else {
+        CHECK_NOTHROW(get_ne32(mb));
+        CHECK_NOTHROW(get_be32(mb));
+        CHECK_NOTHROW(get_le32(mb));
+        CHECK_NOTHROW(set_ne32(mb, 0));
+        CHECK_NOTHROW(set_be32(mb, 0));
+        CHECK_NOTHROW(set_le32(mb, 0));
+    }
+    if (i < 8) {
+        CHECK_THROWS(get_ne64(mb));
+        CHECK_THROWS(get_be64(mb));
+        CHECK_THROWS(get_le64(mb));
+        CHECK_THROWS(set_ne64(mb, 0));
+        CHECK_THROWS(set_be64(mb, 0));
+        CHECK_THROWS(set_le64(mb, 0));
+    } else {
+        CHECK_NOTHROW(get_ne64(mb));
+        CHECK_NOTHROW(get_be64(mb));
+        CHECK_NOTHROW(get_le64(mb));
+        CHECK_NOTHROW(set_ne64(mb, 0));
+        CHECK_NOTHROW(set_be64(mb, 0));
+        CHECK_NOTHROW(set_le64(mb, 0));
+    }
+}
+} // namespace
+
+#endif // UPX_VERSION_HEX
+
+TEST_CASE("xspan global overloads") {
+    byte buf[16] = {};
+
+    for (size_t i = 0; i < 16; i++) {
+        XSPAN_0_VAR(byte, a0, buf, i);
+        XSPAN_P_VAR(byte, ap, buf, i);
+        XSPAN_S_VAR(byte, as, buf, i);
+
+#ifdef UPX_VERSION_HEX
+        check_bele(a0, i);
+        check_bele(ap, i);
+        check_bele(as, i);
+#endif
+
+        CHECK(memcmp(a0, a0, i) == 0);
+        CHECK(memcmp(ap, a0, i) == 0);
+        CHECK(memcmp(as, a0, i) == 0);
+        CHECK_THROWS(memcmp(a0, a0, i + 1)); // NOLINT(bugprone-unused-return-value)
+        CHECK_THROWS(memcmp(ap, a0, i + 1)); // NOLINT(bugprone-unused-return-value)
+        CHECK_THROWS(memcmp(as, a0, i + 1)); // NOLINT(bugprone-unused-return-value)
+
+        CHECK_NOTHROW(memset(a0, 255, i));
+        CHECK_NOTHROW(memset(ap, 255, i));
+        CHECK_NOTHROW(memset(as, 255, i));
+        CHECK_THROWS(memset(a0, 254, i + 1));
+        CHECK_THROWS(memset(ap, 254, i + 1));
+        CHECK_THROWS(memset(as, 254, i + 1));
+    }
+}
+
+/*************************************************************************
 // codegen
 **************************************************************************/
 

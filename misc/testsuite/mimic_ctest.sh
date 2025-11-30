@@ -48,6 +48,7 @@ run_upx=( "${emu[@]}" "$upx_exe" )
 echo "run_upx='${run_upx[*]}'"
 
 # run_upx sanity check
+"${run_upx[@]}" --version-short || true
 if ! "${run_upx[@]}" --version-short >/dev/null; then echo "UPX-ERROR: FATAL: upx --version-short FAILED"; exit 1; fi
 if ! "${run_upx[@]}" -L >/dev/null 2>&1; then echo "UPX-ERROR: FATAL: upx -L FAILED"; exit 1; fi
 if ! "${run_upx[@]}" --help >/dev/null;  then echo "UPX-ERROR: FATAL: upx --help FAILED"; exit 1; fi

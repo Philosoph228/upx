@@ -148,6 +148,8 @@ jobs:
           jobs="gcc/debug gcc/release clang/release"
           echo "===== parallel jobs: $jobs"
           parallel -kv --lb 'cd build/extra/{} && bash ../../../../misc/testsuite/mimic_ctest.sh' ::: $jobs
+          ls -ld ./build/*/*/*/upx-* || true
+          rm -rf ./build/*/*/*/upx-*
 
   job-linux-cmake: # uses cmake + make
     if: true
@@ -267,6 +269,8 @@ jobs:
             test "${{ matrix.use_extra }}" = "true" && jobs="$jobs gcc-m32/debug gcc-m32/release"
             echo "===== parallel jobs: $jobs"
             parallel -kv --lb 'cd build/extra/{} && bash ../../../../misc/testsuite/mimic_ctest.sh' ::: $jobs
+            ls -ld ./build/*/*/*/upx-* || true
+            rm -rf ./build/*/*/*/upx-*
           fi
       - name: Run file system tests
         run: |
@@ -292,6 +296,8 @@ jobs:
           test "${{ matrix.use_extra }}" = "true" && jobs="$jobs gcc-m32/debug gcc-m32/release"
           echo "===== parallel jobs: $jobs"
           parallel -kv --lb 'cd build/extra/{} && bash ../../../../misc/testsuite/upx_testsuite_1.sh' ::: $jobs
+          ls -ld ./build/*/*/*/tmp-upx-testsuite* || true
+          rm -rf ./build/*/*/*/tmp-upx-testsuite*
 
   job-macos-cmake: # uses cmake + make
     if: true

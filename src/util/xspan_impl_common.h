@@ -172,9 +172,9 @@ forceinline ~CSelf() noexcept {}
     // constructors from MemBuffer
     CSelf(MemBuffer &mb)
         : CSelf(makeNotNull((pointer) membuffer_get_void_ptr(mb)),
-                XSpanSizeInBytes(membuffer_get_size(mb))) {}
+                XSpanSizeInBytes(membuffer_get_size_in_bytes(mb))) {}
     CSelf(pointer first, MemBuffer &mb)
-        : CSelf(first, XSpanSizeInBytes(membuffer_get_size(mb)),
+        : CSelf(first, XSpanSizeInBytes(membuffer_get_size_in_bytes(mb)),
                 makeNotNull((pointer) membuffer_get_void_ptr(mb))) {}
     CSelf(std::nullptr_t, MemBuffer &) XSPAN_DELETED_FUNCTION;
 #endif

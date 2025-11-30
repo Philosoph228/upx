@@ -43,7 +43,7 @@ public:
     typedef typename std::add_pointer<T>::type pointer;
     typedef pointer iterator;
     typedef typename std::add_pointer<const T>::type const_iterator;
-    typedef unsigned size_type; // limited by UPX_RSIZE_MAX
+    typedef size_t size_type; // limited by UPX_RSIZE_MAX
 protected:
     static const size_t element_size = sizeof(element_type);
 
@@ -63,7 +63,7 @@ public:
     reference operator[](ptrdiff_t i) const may_throw {
         // NOTE: &array[SIZE] is *not* legal for containers like std::vector and MemBuffer !
         if very_unlikely (i < 0 || mem_size(element_size, i) + element_size > size_in_bytes)
-            throwCantPack("MemBuffer invalid array index %td (%u bytes)", i, size_in_bytes);
+            throwCantPack("MemBuffer invalid array index %td (%zu bytes)", i, size_in_bytes);
         return ptr[i];
     }
     // dereference
@@ -199,13 +199,13 @@ public:
     void allocForDecompression(unsigned uncompressed_size, unsigned extra = 0) may_throw;
 
     noinline void dealloc() noexcept;
-    void checkState() const may_throw;
+    noinline void checkState() const may_throw;
 
     // explicit conversion
     void *getVoidPtr() noexcept { return (void *) ptr; }
     const void *getVoidPtr() const noexcept { return (const void *) ptr; }
     unsigned getSizeInBytes() const noexcept { return size_in_bytes; }
-    unsigned getSize() const noexcept { return size_in_bytes; } // note: element_size == 1
+    unsigned getSize() const noexcept { return size_in_bytes / element_size; }
 
     // util
     noinline void fill(size_t off, size_t bytes, int value) may_throw;
