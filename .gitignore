@@ -10,6 +10,7 @@
 /Makevars[.-]global*
 /Testing*
 /build*
+/out/
 /maint*
 /vendor*
 
