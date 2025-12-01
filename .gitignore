@@ -1,6 +1,7 @@
 /.cache*
 /.idea/
 /.hg*
+/.vs/
 /.vscode*
 /.zed/
 /CMakeCache*
