@@ -75,7 +75,7 @@ endif()
 
 # global settings
 if(${CMAKE_VERSION} VERSION_GREATER "3.14.99" AND NOT DEFINED CMAKE_MSVC_RUNTIME_LIBRARY)
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")
     cmake_policy(SET CMP0091 NEW)
 endif()
 # global CMake settings that default to ON
@@ -326,7 +326,7 @@ endif()
 endif() # UPX_CONFIG_DISABLE_ZSTD
 
 upx_add_glob_files(upx_SOURCES "src/*.cpp" "src/[cfu]*/*.cpp")
-add_executable(upx ${upx_SOURCES})
+add_library(upx STATIC ${upx_SOURCES})
 if(NOT UPX_CONFIG_DISABLE_CXX_STANDARD)
     set_property(TARGET upx PROPERTY CXX_STANDARD 23)
 endif()

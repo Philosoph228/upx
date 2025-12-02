@@ -1364,7 +1364,7 @@ int _dowildcard = -1;
 }
 #endif
 
-int __acc_cdecl_main main(int argc, char *argv[]) /*noexcept*/ {
+int __acc_cdecl_main main2(int argc, char *argv[]) /*noexcept*/ {
 #if 0 && (ACC_OS_DOS32) && defined(__DJGPP__)
     // LFN=n may cause problems with 2.03's _rename and mkdir under WinME
     putenv("LFN=y");
