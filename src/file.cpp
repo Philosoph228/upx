@@ -25,6 +25,10 @@
    <markus@oberhumer.com>               <ezerotven+github@gmail.com>
  */
 
+#include <fstream>
+#include <istream>
+#include <ostream>
+
 #include "conf.h"
 #include "file.h"
 
@@ -230,6 +234,112 @@ int InputFile::dupFd() may_throw {
 }
 
 /*************************************************************************
+// InputStream
+**************************************************************************/
+
+InputStream::InputStream(std::istream &stream) : _stream(stream) {
+    _stream.clear();
+    std::streampos current = _stream.tellg();
+    if (current == -1) {
+        errno = EIO;
+        throwIOException("tellg failed", errno);
+    }
+
+    _stream.seekg(0, std::ios::end);
+    std::streampos end = _stream.tellg();
+    if (end == -1) {
+        errno = EIO;
+        throwIOException("tellg failed at end", errno);
+    }
+    _length_orig = _length = static_cast<upx_off_t>(end);
+
+    _stream.seekg(current);
+}
+
+int InputStream::read(SPAN_P(void) buf, upx_int64_t blen) {
+    int len = (int) mem_size(1, blen); // sanity check
+    errno = 0;
+    _stream.read(static_cast<char *>(raw_bytes(buf, len)), len);
+    std::streamsize l = _stream.gcount();
+    if (l == 0) {
+        if (_stream.eof()) {
+            errno = 0;
+        } else if (_stream.fail()) {
+            errno = EINVAL;
+        } else if (_stream.bad()) {
+            errno = EIO;
+        }
+    }
+    if (errno)
+        throwIOException("read error", errno);
+    return static_cast<int>(l);
+}
+
+int InputStream::readx(SPAN_P(void) buf, upx_int64_t blen) {
+    int l = this->read(buf, blen);
+    if (l != blen)
+        throwEOFException();
+    return l;
+}
+
+upx_off_t InputStream::seek(upx_off_t off, int whence) {
+    std::ios::seekdir dir;
+    switch (whence) {
+    case SEEK_SET:
+        dir = std::ios::beg;
+        break;
+    case SEEK_CUR:
+        dir = std::ios::cur;
+        break;
+    case SEEK_END:
+        dir = std::ios::end;
+        break;
+    default:
+        throwIOException("bad seek whence");
+        break;
+    }
+
+    _stream.clear();
+
+    _stream.seekg(static_cast<std::streamoff>(off), dir);
+    if (!_stream) {
+        errno = EIO;
+        throwIOException("seek failed");
+    }
+
+    std::streampos pos = _stream.tellg();
+    if (pos < 0) {
+        errno = EIO;
+        throwIOException("tellg failed", errno);
+    }
+
+    if (_length >= 0 && pos > static_cast<std::streampos>(_length)) {
+        errno = EINVAL;
+        throwIOException("seek beyond end of stream", errno);
+    }
+
+    return static_cast<upx_off_t>(pos);
+}
+
+upx_off_t InputStream::st_size() const {
+    _stream.clear();
+    std::streampos current = _stream.tellg();
+    if (current == -1) {
+        errno = EIO;
+        throwIOException("tellg failed", errno);
+    }
+
+    _stream.seekg(0, std::ios::end);
+    std::streampos end = _stream.tellg();
+    if (end == -1) {
+        errno = EIO;
+        throwIOException("tellg failed at end", errno);
+    }
+    _stream.seekg(current);
+    return static_cast<upx_off_t>(end);
+}
+
+/*************************************************************************
 // OutputFile
 **************************************************************************/
 
@@ -374,6 +484,224 @@ upx_off_t OutputFile::unset_extent() {
     f.open(name, flags, 0600);
     f.write(raw_bytes(buf, len), len);
     f.closex();
+}
+
+/*************************************************************************
+// OutputStream
+**************************************************************************/
+
+OutputStream::OutputStream(std::ostream &stream) : _stream(stream) {
+    // clear stream error flags so seek/read will work
+    _stream.clear();
+
+    // try to determine current position and stream length if seekable
+    std::streampos curr = _stream.tellp();
+    if (curr != static_cast<std::streampos>(-1)) {
+        // try to compute length by seeking to end and back
+        if (_stream.seekp(0, std::ios::end)) {
+            std::streampos end = _stream.tellp();
+            if (end != static_cast<std::streampos>(-1)) {
+                _length = static_cast<upx_off_t>(end);
+            }
+            // restore
+            _stream.seekp(curr);
+        }
+    }
+    // initialize bytes_written sensibly: if we could get _length, use it; otherwise 0
+    bytes_written = _length;
+}
+
+void OutputStream::write(SPAN_0(const void) buf, upx_int64_t blen) {
+    if (!isOpen() && !_stream.good()) // isOpen for FileBase; for ostream check stream state
+        throwIOException("bad write");
+
+    if (blen == 0)
+        return;
+
+    int len = (int) mem_size(1, blen); // sanity check
+    errno = 0;
+
+    // perform write via std::ostream
+    _stream.write(static_cast<const char *>(raw_bytes(buf, len)), len);
+
+    // flush? Usually not necessary. But if you want to ensure errors are reported:
+    // _stream.flush();
+
+    if (!_stream) {
+        // map stream state to errno similar to InputStream
+        if (_stream.bad())
+            errno = EIO;
+        else if (_stream.fail())
+            errno = EINVAL;
+        else
+            errno = EIO;
+        throwIOException("write error", errno);
+    }
+
+    // update bookkeeping: bytes_written increases by actual bytes written (assume len)
+    bytes_written += len;
+
+    // also update _length lazily
+    if (_length < bytes_written)
+        _length = bytes_written;
+}
+
+// st_size: try to compute via seekp/tellp if possible; otherwise fallback
+upx_off_t OutputStream::st_size() const {
+    // If this OutputStream was created for stdout-like (non-seekable) streams,
+    // we cannot compute file size via tellp; return bytes_written as fallback.
+    std::ostream &s = const_cast<std::ostream &>(_stream); // tellp non-const API
+    std::streampos saved = s.tellp();
+    if (saved == static_cast<std::streampos>(-1)) {
+        // cannot determine; fallback to bytes_written
+        return bytes_written;
+    }
+    s.seekp(0, std::ios::end);
+    std::streampos end = s.tellp();
+    if (end == static_cast<std::streampos>(-1)) {
+        // restore and fallback
+        s.seekp(saved);
+        return bytes_written;
+    }
+    // restore
+    s.seekp(saved);
+    return static_cast<upx_off_t>(end);
+}
+
+// rewrite: do a write but restore bytes_written as in original
+void OutputStream::rewrite(SPAN_P(const void) buf, int len) {
+    write(buf, len);
+    bytes_written -= len; // restore like original
+}
+
+// seek using std::ostream positioning (seekp/tellp)
+upx_off_t OutputStream::seek(upx_off_t off, int whence) {
+    // sanity
+    if (!mem_size_valid_bytes(off >= 0 ? off : -off))
+        throwIOException("bad seek");
+
+    std::ios::seekdir dir;
+    switch (whence) {
+    case SEEK_SET:
+        dir = std::ios::beg;
+        break;
+    case SEEK_CUR:
+        dir = std::ios::cur;
+        break;
+    case SEEK_END:
+        dir = std::ios::end;
+        break;
+    default:
+        throwIOException("invalid whence", EINVAL);
+    }
+
+    _stream.clear(); // clear any flags so seekp may work
+    _stream.seekp(static_cast<std::streamoff>(off), dir);
+
+    if (!_stream) {
+        // seek failed
+        if (_stream.bad())
+            errno = EIO;
+        else if (_stream.fail())
+            errno = EINVAL;
+        else
+            errno = EIO;
+        throwIOException("seek failed", errno);
+    }
+
+    std::streampos p = _stream.tellp();
+    if (p == static_cast<std::streampos>(-1)) {
+        errno = EIO;
+        throwIOException("tellp failed", errno);
+    }
+
+    upx_off_t pos = static_cast<upx_off_t>(p);
+
+    // mirror your original semantics about bytes_written/_length updates
+    switch (whence) {
+    case SEEK_SET:
+        if (bytes_written < off)
+            bytes_written = off;
+        _length = bytes_written; // cheap lazy update
+        break;
+    case SEEK_END:
+        _length = bytes_written; // necessary in original
+        break;
+    default:
+        break;
+    }
+
+    return pos;
+}
+
+// WARNING: fsync() does not exist in some Windows environments.
+// This trick works only on UNIX-like systems.
+// int OutputFile::read(void *buf, int len) {
+//    fsync(_fd);
+//    InputFile infile;
+//    infile.open(this->getName(), O_RDONLY | O_BINARY);
+//    infile.seek(this->tell(), SEEK_SET);
+//    return infile.read(buf, len);
+//}
+
+// overriding set_extent if you need special behaviour
+void OutputStream::set_extent(upx_off_t offset, upx_off_t length) {
+    super::set_extent(offset, length);
+    bytes_written = 0;
+    if (0 == offset && 0xffffffffLL == length) {
+        // attempt to read current stream size
+        try {
+            st.st_size = static_cast<off_t>(st_size());
+            _length = st.st_size - offset;
+        } catch (...) {
+            // leave _length unchanged or set to 0
+        }
+    }
+}
+
+// unset_extent: get actual length by seeking to end and returning it
+upx_off_t OutputStream::unset_extent() {
+    _stream.clear();
+    _stream.seekp(0, std::ios::end);
+    if (!_stream) {
+        if (_stream.bad())
+            errno = EIO;
+        else if (_stream.fail())
+            errno = EINVAL;
+        else
+            errno = EIO;
+        throwIOException("seek failed", errno);
+    }
+    std::streampos end = _stream.tellp();
+    if (end == static_cast<std::streampos>(-1)) {
+        errno = EIO;
+        throwIOException("tellp failed", errno);
+    }
+    _offset = 0;
+    _length = static_cast<upx_off_t>(end);
+    bytes_written = _length;
+    return _length;
+}
+
+/*static*/ void OutputStream::dump(const char *name, SPAN_P(const void) buf, int len, int flags) {
+    (void) flags; // keep API compatibility if you don't use flags here
+    if (!name)
+        return;
+    std::ofstream ofs;
+    ofs.open(name, std::ios::binary | std::ios::out | std::ios::trunc);
+    if (!ofs.is_open()) {
+        // map error and throw
+        throwIOException(name, errno);
+    }
+    ofs.write(static_cast<const char *>(raw_bytes(buf, len)), len);
+    if (!ofs) {
+        // writing failed
+        throwIOException(name, errno ? errno : EIO);
+    }
+    ofs.close();
+    if (!ofs.good()) {
+        throwIOException(name, errno ? errno : EIO);
+    }
 }
 
 /*************************************************************************

@@ -73,19 +73,20 @@ public:
 //
 **************************************************************************/
 
-class InputFile final : public FileBase {
+class InputFile : public FileBase {
     typedef FileBase super;
 
 public:
     explicit InputFile() noexcept = default;
+    /*virtual*/ ~InputFile() override = default;
 
     void sopen(const char *name, int flags, int shflags);
     void open(const char *name, int flags) { sopen(name, flags, -1); }
 
-    int read(SPAN_P(void) buf, upx_int64_t blen);
-    int readx(SPAN_P(void) buf, upx_int64_t blen);
+    virtual int read(SPAN_P(void) buf, upx_int64_t blen);
+    virtual int readx(SPAN_P(void) buf, upx_int64_t blen);
 
-    virtual upx_off_t seek(upx_off_t off, int whence) override;
+    /*virtual*/ upx_off_t seek(upx_off_t off, int whence) override;
     upx_off_t st_size_orig() const;
 
     noinline int dupFd() may_throw;
@@ -98,7 +99,28 @@ protected:
 //
 **************************************************************************/
 
-class OutputFile final : public FileBase {
+class InputStream : public InputFile {
+    typedef FileBase super;
+
+public:
+    explicit InputStream(std::istream &stream);
+    /*virtual*/ ~InputStream() override = default;
+
+    int read(SPAN_P(void) buf, upx_int64_t blen) override;
+    int readx(SPAN_P(void) buf, upx_int64_t blen) override;
+
+    upx_off_t seek(upx_off_t off, int whence) override;
+    upx_off_t st_size() const override;
+
+protected:
+    std::istream &_stream;
+};
+
+/*************************************************************************
+//
+**************************************************************************/
+
+class OutputFile : public FileBase {
     typedef FileBase super;
 
 public:
@@ -109,23 +131,52 @@ public:
     bool openStdout(int flags = 0, bool force = false);
 
     // info: allow nullptr if blen == 0
-    void write(SPAN_0(const void) buf, upx_int64_t blen);
+    virtual void write(SPAN_0(const void) buf, upx_int64_t blen);
 
-    virtual upx_off_t seek(upx_off_t off, int whence) override;
-    virtual upx_off_t st_size() const override; // { return _length; }
-    virtual void set_extent(upx_off_t offset, upx_off_t length) override;
-    upx_off_t unset_extent(); // returns actual length
+    upx_off_t seek(upx_off_t off, int whence) override;
+    upx_off_t st_size() const override; // { return _length; }
+    void set_extent(upx_off_t offset, upx_off_t length) override;
+    virtual upx_off_t unset_extent(); // returns actual length
 
     upx_off_t getBytesWritten() const { return bytes_written; }
 
     // FIXME - this won't work when using the '--stdout' option
-    void rewrite(SPAN_P(const void) buf, int len);
+    virtual void rewrite(SPAN_P(const void) buf, int len);
 
     // util
     static void dump(const char *name, SPAN_P(const void) buf, int len, int flags = -1);
 
 protected:
     upx_off_t bytes_written = 0;
+};
+
+/*************************************************************************
+//
+**************************************************************************/
+
+class OutputStream : public OutputFile {
+    typedef FileBase super;
+
+public:
+    explicit OutputStream(std::ostream &stream);
+
+    // info: allow nullptr if blen == 0
+    void write(SPAN_0(const void) buf, upx_int64_t blen) override;
+
+    virtual upx_off_t seek(upx_off_t off, int whence) override;
+    virtual upx_off_t st_size() const override; // { return _length; }
+    virtual void set_extent(upx_off_t offset, upx_off_t length) override;
+
+    upx_off_t unset_extent() override; // returns actual length
+
+    // FIXME - this won't work when using the '--stdout' option
+    void rewrite(SPAN_P(const void) buf, int len) override;
+
+    // util
+    static void dump(const char *name, SPAN_P(const void) buf, int len, int flags = -1);
+
+protected:
+    std::ostream &_stream;
 };
 
 /* vim:set ts=4 sw=4 et: */

@@ -230,8 +230,8 @@ int PackExe::readFileHeader() {
 }
 
 tribool PackExe::canPack() {
-    if (fn_has_ext(fi->getName(), "sys")) // dos/sys
-        return false;
+    // if (fn_has_ext(fi->getName(), "sys")) // dos/sys
+    //     return false;
     if (!readFileHeader())
         return false;
     if (file_size < 1024 || ih_imagesize < 512)
