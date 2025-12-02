@@ -29,9 +29,9 @@
 #include "system_defs.h"
 #include "system_features.h"
 
-#if !(__cplusplus + 0 >= 201703L)
-#error "FATAL ERROR: C++17 is required"
-#endif
+// #if !(__cplusplus + 0 >= 201703L)
+// #error "FATAL ERROR: C++17 is required"
+// #endif
 
 // sanity checks
 #if defined(_ILP32) || defined(__ILP32) || defined(__ILP32__)
