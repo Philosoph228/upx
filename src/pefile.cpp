@@ -2557,6 +2557,9 @@ void PeFile::pack0(OutputFile *fo, ht &ih, ht &oh, unsigned subsystem_mask,
     ic += soloadconf;
 
     if (dbgCET) {
+        int delta = ic - dbgCET->rva;
+        dbgCET->rva = ic;
+        dbgCET->fpos += delta;
         ODADDR(PEDIR_DEBUG) = ic;
         ODSIZE(PEDIR_DEBUG) = sizeof(*dbgCET);
         ic += sizeof(LE32) + ODSIZE(PEDIR_DEBUG);
@@ -2709,7 +2712,7 @@ void PeFile::pack0(OutputFile *fo, ht &ih, ht &oh, unsigned subsystem_mask,
     if (dbgCET) {
         ic = fo->getBytesWritten();
         dbgCET->fpos = ic + sizeof(*dbgCET);
-        dbgCET->rva = rvamin + 0x400 + dbgCET->fpos; // 0x400 => soheaders
+        dbgCET->rva = osection[1].vaddr + dbgCET->fpos - osection[1].rawdataptr;
         LE32 word;
         set_le32(&word, IMAGE_DLLCHARACTERISTICS_EX_CET_COMPAT);
         if (0) { // set all bytes t0 zero
