@@ -24,6 +24,8 @@
    <jreiser@users.sourceforge.net>
  */
 
+/* clang-format off */
+
 // Do not change columns or whitespace!
 // I write code with adjacent lines that should match spacing.
 // filter/auipc.h has been added to CLANG_FORMAT_EXCLUDE_FILES in Makefile.

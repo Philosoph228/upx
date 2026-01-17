@@ -1730,7 +1730,7 @@ PackLinuxElf32::buildLinuxLoader(
     relocateLoader();
 }
 
-unsigned bb1;  // aid for possible debugging NRV/UCL
+// unsigned bb1;  // aid for possible debugging NRV/UCL
 
 void
 PackLinuxElf64::buildLinuxLoader(

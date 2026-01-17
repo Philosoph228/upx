@@ -71,8 +71,10 @@ static void xcheck(const void *p, size_t plen, const void *b, size_t blen) may_t
 PeFile::PeFile(InputFile *f) : super(f) {
     bele = &N_BELE_RTP::le_policy;
     COMPILE_TIME_ASSERT(sizeof(ddirs_t) == 8)
+    COMPILE_TIME_ASSERT(sizeof(import_desc) == 20)
     COMPILE_TIME_ASSERT(sizeof(pe_section_t) == 40)
     COMPILE_TIME_ASSERT_ALIGNED1(ddirs_t)
+    COMPILE_TIME_ASSERT_ALIGNED1(import_desc)
     COMPILE_TIME_ASSERT_ALIGNED1(pe_section_t)
     COMPILE_TIME_ASSERT(RT_LAST == TABLESIZE(opt->win32_pe.compress_rt))
 

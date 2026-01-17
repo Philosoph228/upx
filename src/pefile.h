@@ -528,8 +528,8 @@ protected:
         LE32 fpos;
     };
     enum { IMAGE_DEBUG_TYPE_EX_DLLCHARACTERISTICS = 20 };
-    enum { IMAGE_DLLCHARACTERISTICS_EX_CET_COMPAT = 0x001 };
-    struct DebugDir *dbgCET = nullptr; // RANDOM COMMENT to jog GitHub's memory
+    enum { IMAGE_DLLCHARACTERISTICS_EX_CET_COMPAT = 0x0001 };
+    struct DebugDir *dbgCET = nullptr;
 };
 
 class PeFile32 : public PeFile {

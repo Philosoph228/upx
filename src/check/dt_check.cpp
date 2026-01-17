@@ -430,7 +430,7 @@ struct CheckIntegral {
             three = 3;
             four = 4;
             // align - needs binary expressions which do not work
-            // on CHERI uintptr_t because of pointer provenance
+            //   on CHERI uintptr_t because of pointer provenance
             assert_noexcept(upx::align_down(zero, four) == 0);
             assert_noexcept(upx::align_down(zero, four) == zero);
             assert_noexcept(upx::align_down(one, four) == 0);
@@ -678,7 +678,7 @@ struct CheckSignedness {
         static_assert(all_bits == U(~U(0)));
         static_assert(U_is_signed ? (all_bits < 0) : (all_bits > 0));
     }
-    static void check() noexcept {
+    static noinline void check() noexcept {
         checkU<T, T_is_signed>();
         using signed_type = std::make_signed_t<T>;
         checkU<signed_type, true>();
@@ -982,6 +982,8 @@ void upx_compiler_sanity_check() noexcept {
     CheckIntegral<ptrdiff_t>::check();
     CheckIntegral<size_t>::check();
     CheckIntegral<upx_ptraddr_t>::check();
+    CheckIntegral<upx_ssize_t>::check();
+    CheckIntegral<upx_uptrdiff_t>::check();
 #if defined(__CHERI__) && defined(__CHERI_PURE_CAPABILITY__)
     static_assert(sizeof(upx_ptraddr_t) == 8);
     static_assert(alignof(upx_ptraddr_t) == 8);
@@ -1036,6 +1038,8 @@ void upx_compiler_sanity_check() noexcept {
 #endif
     CheckSignedness<upx_off_t, true>::check();
     CheckSignedness<ptrdiff_t, true>::check();
+    CheckSignedness<upx_uptrdiff_t, false>::check();
+    CheckSignedness<upx_ssize_t, true>::check();
     CheckSignedness<size_t, false>::check();
     CheckSignedness<upx_ptraddr_t, false>::check();
     CheckSignedness<intptr_t, true>::check();
