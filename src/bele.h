@@ -263,20 +263,10 @@ forceinline bele_constexpr upx_uint64_t bswap64(upx_uint64_t v) noexcept {
 #else
 
 forceinline constexpr unsigned bswap16(unsigned v) noexcept {
-#if defined(__riscv) && __riscv_xlen == 64
-    return (unsigned) __builtin_bswap64(upx_uint64_t(v) << 48);
-#else
-    // return __builtin_bswap16(upx_uint16_t(v & 0xffff));
-    return __builtin_bswap32(v << 16);
-#endif
+    return __builtin_bswap16(upx_uint16_t(v & 0xffff));
+    // return __builtin_bswap32(v << 16);
 }
-forceinline constexpr unsigned bswap32(unsigned v) noexcept {
-#if defined(__riscv) && __riscv_xlen == 64
-    return (unsigned) __builtin_bswap64(upx_uint64_t(v) << 32);
-#else
-    return __builtin_bswap32(v);
-#endif
-}
+forceinline constexpr unsigned bswap32(unsigned v) noexcept { return __builtin_bswap32(v); }
 forceinline constexpr upx_uint64_t bswap64(upx_uint64_t v) noexcept { return __builtin_bswap64(v); }
 
 #endif

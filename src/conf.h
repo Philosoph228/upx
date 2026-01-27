@@ -315,13 +315,15 @@ typedef long long upx_off_t;
 #endif
 #endif
 
-// some platforms may provide their own system bswapXX() functions, so rename to avoid conflicts
-#undef bswap16
-#undef bswap32
-#undef bswap64
-#define bswap16 upx_bswap16
-#define bswap32 upx_bswap32
-#define bswap64 upx_bswap64
+#if !defined(O_BINARY) || (O_BINARY + 0 == 0)
+#if (ACC_OS_CYGWIN || ACC_OS_DOS16 || ACC_OS_DOS32 || ACC_OS_EMX || ACC_OS_OS2 || ACC_OS_OS216 ||  \
+     ACC_OS_WIN16 || ACC_OS_WIN32 || ACC_OS_WIN64)
+#error "missing O_BINARY"
+#endif
+#endif
+#if !defined(O_BINARY)
+#define O_BINARY 0
+#endif
 
 // avoid warnings about shadowing global symbols
 #undef _base
@@ -333,15 +335,13 @@ typedef long long upx_off_t;
 #define index    upx_renamed_index
 #define outp     upx_renamed_outp
 
-#if !defined(O_BINARY) || (O_BINARY + 0 == 0)
-#if (ACC_OS_CYGWIN || ACC_OS_DOS16 || ACC_OS_DOS32 || ACC_OS_EMX || ACC_OS_OS2 || ACC_OS_OS216 ||  \
-     ACC_OS_WIN16 || ACC_OS_WIN32 || ACC_OS_WIN64)
-#error "missing O_BINARY"
-#endif
-#endif
-#if !defined(O_BINARY)
-#define O_BINARY 0
-#endif
+// some platforms may provide their own system bswapXX() functions, so rename to avoid conflicts
+#undef bswap16
+#undef bswap32
+#undef bswap64
+#define bswap16 upx_bswap16
+#define bswap32 upx_bswap32
+#define bswap64 upx_bswap64
 
 /*************************************************************************
 // util

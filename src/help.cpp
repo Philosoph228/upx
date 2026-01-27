@@ -549,7 +549,7 @@ void show_sysinfo(const char *options_var) {
     // Compilation Flags
     {
         size_t cf_count = 0;
-        auto cf_print = [f, &cf_count](const char *name, const char *fmt, upx_int64_t v,
+        auto cf_print = [f, &cf_count](const char *name, const char *fmt, long long v,
                                        int need_verbose = 2) noexcept {
             if (opt->verbose < need_verbose)
                 return;
