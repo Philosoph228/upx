@@ -263,8 +263,8 @@ forceinline bele_constexpr upx_uint64_t bswap64(upx_uint64_t v) noexcept {
 #else
 
 forceinline constexpr unsigned bswap16(unsigned v) noexcept {
-    return __builtin_bswap16(upx_uint16_t(v & 0xffff));
     // return __builtin_bswap32(v << 16);
+    return __builtin_bswap16(upx_uint16_t(v & 0xffff));
 }
 forceinline constexpr unsigned bswap32(unsigned v) noexcept { return __builtin_bswap32(v); }
 forceinline constexpr upx_uint64_t bswap64(upx_uint64_t v) noexcept { return __builtin_bswap64(v); }
@@ -898,35 +898,35 @@ struct alignas(1) LE64 final {
 
 template <class T>
 inline bele_constexpr T *operator+(T *ptr, const BE16 &v) noexcept {
-    return ptr + unsigned(v);
+    return ptr + size_t(unsigned(v));
 }
 template <class T>
 inline bele_constexpr T *operator-(T *ptr, const BE16 &v) noexcept {
-    return ptr - unsigned(v);
+    return ptr - size_t(unsigned(v));
 }
 template <class T>
 inline bele_constexpr T *operator+(T *ptr, const BE32 &v) noexcept {
-    return ptr + unsigned(v);
+    return ptr + size_t(unsigned(v));
 }
 template <class T>
 inline bele_constexpr T *operator-(T *ptr, const BE32 &v) noexcept {
-    return ptr - unsigned(v);
+    return ptr - size_t(unsigned(v));
 }
 template <class T>
 inline bele_constexpr T *operator+(T *ptr, const LE16 &v) noexcept {
-    return ptr + unsigned(v);
+    return ptr + size_t(unsigned(v));
 }
 template <class T>
 inline bele_constexpr T *operator-(T *ptr, const LE16 &v) noexcept {
-    return ptr - unsigned(v);
+    return ptr - size_t(unsigned(v));
 }
 template <class T>
 inline bele_constexpr T *operator+(T *ptr, const LE32 &v) noexcept {
-    return ptr + unsigned(v);
+    return ptr + size_t(unsigned(v));
 }
 template <class T>
 inline bele_constexpr T *operator-(T *ptr, const LE32 &v) noexcept {
-    return ptr - unsigned(v);
+    return ptr - size_t(unsigned(v));
 }
 
 // these are not implemented on purpose and will cause errors

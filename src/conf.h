@@ -440,6 +440,7 @@ inline void NO_fprintf(FILE *, const char *, ...) noexcept {}
     COMPILE_TIME_ASSERT(alignof(a) == sizeof(b))
 #define COMPILE_TIME_ASSERT_ALIGNED1(a) COMPILE_TIME_ASSERT_ALIGNOF__(a, char)
 
+// TABLESIZE
 #define TABLESIZE(table) ((sizeof(table) / sizeof((table)[0])))
 
 // mem_clear()
