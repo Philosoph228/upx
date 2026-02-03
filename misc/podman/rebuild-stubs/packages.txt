@@ -1,17 +1,17 @@
-REPOSITORY                           TAG         IMAGE ID      CREATED         SIZE
-localhost/upx-stubtools-20240405-v1  latest      c328c1d7ae42  13 seconds ago  1.62 GB
+REPOSITORY                           TAG         IMAGE ID      CREATED        SIZE
+localhost/upx-stubtools-20240405-v1  latest      8a7a1ec82b2b  9 seconds ago  1.64 GB
 
-Image ID: c328c1d7ae42
+Image ID: 8a7a1ec82b2b
 Tags:     [localhost/upx-stubtools-20240405-v1:latest]
-Size:     1.622GB
+Size:     1.641GB
 Image Layers
-├── ID: e8bce0aabd68 Size: 80.64MB Top Layer of: [docker.io/library/ubuntu:24.04]
-├── ID: 43cfb9d05b01 Size: 1.173GB
-├── ID: af9dcba2149e Size: 9.483MB
-├── ID: 519e647b55de Size: 457.2kB
-├── ID: 63d2fc179f96 Size: 320.1MB
-├── ID: 4f488440d023 Size: 37.45MB
-└── ID: 9a3e9fc7085f Size: 44.03kB Top Layer of: [localhost/upx-stubtools-20240405-v1:latest]
+├── ID: 123a078714d5 Size: 80.64MB Top Layer of: [docker.io/library/ubuntu:24.04]
+├── ID: 4b5494f03eee Size: 1.191GB
+├── ID: 90954b86e22f Size: 9.478MB
+├── ID: 60da04ae81f4 Size: 457.2kB
+├── ID: 2fd84cb08e60 Size: 320.1MB
+├── ID: d9cd23279271 Size:  39.9MB
+└── ID: d0a5a8a7e04a Size: 44.03kB Top Layer of: [localhost/upx-stubtools-20240405-v1:latest]
 
 Packages:
 +++-===================================-=================================-============-================================================================================
@@ -93,7 +93,7 @@ ii  gh                                  2.45.0-1ubuntu0.3                 amd64 
 ii  git                                 1:2.43.0-1ubuntu7.3               amd64        fast, scalable, distributed revision control system
 ii  git-man                             1:2.43.0-1ubuntu7.3               all          fast, scalable, distributed revision control system (manual pages)
 ii  gojq                                0.12.13-1ubuntu0.24.04.3          amd64        pure Go implementation of jq (program)
-ii  gpgv                                2.4.4-2ubuntu17.3                 amd64        GNU privacy guard - signature verification tool
+ii  gpgv                                2.4.4-2ubuntu17.4                 amd64        GNU privacy guard - signature verification tool
 ii  grep                                3.11-4build1                      amd64        GNU grep, egrep and fgrep
 ii  groff-base                          1.23.0-3build2                    amd64        GNU troff text-formatting system (base system components)
 ii  gzip                                1.12-1ubuntu3.1                   amd64        GNU compression utilities
@@ -139,18 +139,18 @@ ii  libbrotli1:amd64                    1.1.0-2build2                     amd64 
 ii  libbsd0:amd64                       0.12.1-1build1.1                  amd64        utility functions from BSD systems - shared library
 ii  libbz2-1.0:amd64                    1.0.8-5.1build0.1                 amd64        high-quality block-sorting file compressor library - runtime
 ii  libbzip3-0:amd64                    1.4.0-1                           amd64        better, faster and stronger spiritual successor to bzip2 - runtime
-ii  libc-bin                            2.39-0ubuntu8.6                   amd64        GNU C Library: Binaries
-ii  libc-dev-bin                        2.39-0ubuntu8.6                   amd64        GNU C Library: Development binaries
-ii  libc6-dbg:amd64                     2.39-0ubuntu8.6                   amd64        GNU C Library: detached debugging symbols
-ii  libc6-dev-i386                      2.39-0ubuntu8.6                   amd64        GNU C Library: 32-bit development libraries for AMD64
+ii  libc-bin                            2.39-0ubuntu8.7                   amd64        GNU C Library: Binaries
+ii  libc-dev-bin                        2.39-0ubuntu8.7                   amd64        GNU C Library: Development binaries
+ii  libc6-dbg:amd64                     2.39-0ubuntu8.7                   amd64        GNU C Library: detached debugging symbols
+ii  libc6-dev-i386                      2.39-0ubuntu8.7                   amd64        GNU C Library: 32-bit development libraries for AMD64
 ii  libc6-dev-riscv64-cross             2.39-0ubuntu8cross1               all          GNU C Library: Development Libraries and Header Files (for cross-compiling)
-ii  libc6-dev-x32                       2.39-0ubuntu8.6                   amd64        GNU C Library: X32 ABI Development Libraries for AMD64
-ii  libc6-dev:amd64                     2.39-0ubuntu8.6                   amd64        GNU C Library: Development Libraries and Header Files
-ii  libc6-i386                          2.39-0ubuntu8.6                   amd64        GNU C Library: 32-bit shared libraries for AMD64
+ii  libc6-dev-x32                       2.39-0ubuntu8.7                   amd64        GNU C Library: X32 ABI Development Libraries for AMD64
+ii  libc6-dev:amd64                     2.39-0ubuntu8.7                   amd64        GNU C Library: Development Libraries and Header Files
+ii  libc6-i386                          2.39-0ubuntu8.7                   amd64        GNU C Library: 32-bit shared libraries for AMD64
 ii  libc6-riscv64-cross                 2.39-0ubuntu8cross1               all          GNU C Library: Shared libraries (for cross-compiling)
-ii  libc6-x32                           2.39-0ubuntu8.6                   amd64        GNU C Library: X32 ABI Shared libraries for AMD64
-ii  libc6:amd64                         2.39-0ubuntu8.6                   amd64        GNU C Library: Shared libraries
-ii  libc6:i386                          2.39-0ubuntu8.6                   i386         GNU C Library: Shared libraries
+ii  libc6-x32                           2.39-0ubuntu8.7                   amd64        GNU C Library: X32 ABI Shared libraries for AMD64
+ii  libc6:amd64                         2.39-0ubuntu8.7                   amd64        GNU C Library: Shared libraries
+ii  libc6:i386                          2.39-0ubuntu8.7                   i386         GNU C Library: Shared libraries
 ii  libcap-ng0:amd64                    0.8.4-2build2                     amd64        alternate POSIX capabilities library
 ii  libcap2:amd64                       1:2.66-5ubuntu2.2                 amd64        POSIX 1003.1e capabilities (library)
 ii  libcares2:amd64                     1.27.0-1.0ubuntu1                 amd64        asynchronous name resolver
@@ -181,7 +181,7 @@ ii  libgcrypt20:amd64                   1.10.3-2build1                    amd64 
 ii  libgdbm-compat4t64:amd64            1.23-5.1build1                    amd64        GNU dbm database routines (legacy support runtime version)
 ii  libgdbm6t64:amd64                   1.23-5.1build1                    amd64        GNU dbm database routines (runtime version)
 ii  libgit2-1.7:amd64                   1.7.2+ds-1ubuntu3                 amd64        low-level Git library
-ii  libglib2.0-0t64:amd64               2.80.0-6ubuntu3.6                 amd64        GLib library of C routines
+ii  libglib2.0-0t64:amd64               2.80.0-6ubuntu3.7                 amd64        GLib library of C routines
 ii  libgmp10:amd64                      2:6.3.0+dfsg-2ubuntu6.1           amd64        Multiprecision arithmetic library
 ii  libgnutls30t64:amd64                3.8.3-1.1ubuntu3.4                amd64        GNU TLS library - main runtime library
 ii  libgomp1-riscv64-cross              14.2.0-4ubuntu2~24.04cross1       all          GCC OpenMP (GOMP) support library
@@ -208,7 +208,7 @@ ii  libk5crypto3:amd64                  1.20.1-6ubuntu2.6                 amd64 
 ii  libkeyutils1:amd64                  1.6.3-3build1                     amd64        Linux Key Management Utilities (library)
 ii  libkrb5-3:amd64                     1.20.1-6ubuntu2.6                 amd64        MIT Kerberos runtime libraries
 ii  libkrb5support0:amd64               1.20.1-6ubuntu2.6                 amd64        MIT Kerberos runtime libraries - Support library
-ii  libldap2:amd64                      2.6.7+dfsg-1~exp1ubuntu8.2        amd64        OpenLDAP libraries
+ii  libldap2:amd64                      2.6.10+dfsg-0ubuntu0.24.04.1      amd64        OpenLDAP libraries
 ii  liblsan0:amd64                      14.2.0-4ubuntu2~24.04             amd64        LeakSanitizer -- a memory leak detector (runtime)
 ii  libluajit-5.1-2:amd64               2.1.0+git20231223.c525bcb+dfsg-1  amd64        Just in time compiler for Lua - library version
 ii  libluajit-5.1-common                2.1.0+git20231223.c525bcb+dfsg-1  all          Just in time compiler for Lua - common files
@@ -245,9 +245,9 @@ ii  libproc2-0:amd64                    2:4.0.4-4ubuntu3.2                amd64 
 ii  libpsl5t64:amd64                    0.21.2-1.1build1                  amd64        Library for Public Suffix List (shared libraries)
 ii  libpython2.7-minimal:amd64          2.7.18-8+deb11u1                  amd64        Minimal subset of the Python language (version 2.7)
 ii  libpython3-stdlib:amd64             3.12.3-0ubuntu2.1                 amd64        interactive high-level object-oriented language (default python3 version)
-ii  libpython3.12-minimal:amd64         3.12.3-1ubuntu0.9                 amd64        Minimal subset of the Python language (version 3.12)
-ii  libpython3.12-stdlib:amd64          3.12.3-1ubuntu0.9                 amd64        Interactive high-level object-oriented language (standard library, version 3.12)
-ii  libpython3.12t64:amd64              3.12.3-1ubuntu0.9                 amd64        Shared Python runtime library (version 3.12)
+ii  libpython3.12-minimal:amd64         3.12.3-1ubuntu0.10                amd64        Minimal subset of the Python language (version 3.12)
+ii  libpython3.12-stdlib:amd64          3.12.3-1ubuntu0.10                amd64        Interactive high-level object-oriented language (standard library, version 3.12)
+ii  libpython3.12t64:amd64              3.12.3-1ubuntu0.10                amd64        Shared Python runtime library (version 3.12)
 ii  libquadmath0:amd64                  14.2.0-4ubuntu2~24.04             amd64        GCC Quad-Precision Math Library
 ii  libreadline8t64:amd64               8.2-4build1                       amd64        GNU readline and history libraries, run-time libraries
 ii  librhash0:amd64                     1.4.3-3build1                     amd64        shared library for hash functions computing
@@ -270,13 +270,13 @@ ii  libsqlite3-0:amd64                  3.45.1-1ubuntu2.5                 amd64 
 ii  libss2:amd64                        1.47.0-2.4~exp1ubuntu4.1          amd64        command-line interface parsing library
 ii  libssh-4:amd64                      0.10.6-2ubuntu0.2                 amd64        tiny C SSH library (OpenSSL flavor)
 ii  libssh2-1t64:amd64                  1.11.0-4.1build2                  amd64        SSH2 client-side library
-ii  libssl3t64:amd64                    3.0.13-0ubuntu3.6                 amd64        Secure Sockets Layer toolkit - shared libraries
+ii  libssl3t64:amd64                    3.0.13-0ubuntu3.7                 amd64        Secure Sockets Layer toolkit - shared libraries
 ii  libstdc++-13-dev:amd64              13.3.0-6ubuntu2~24.04             amd64        GNU Standard C++ Library v3 (development files)
 ii  libstdc++6-riscv64-cross            14.2.0-4ubuntu2~24.04cross1       all          GNU Standard C++ Library v3 (riscv64)
 ii  libstdc++6:amd64                    14.2.0-4ubuntu2~24.04             amd64        GNU Standard C++ Library v3
 ii  libsystemd0:amd64                   255.4-1ubuntu8.12                 amd64        systemd utility library
 ii  libtalloc2:amd64                    2.4.2-1build2                     amd64        hierarchical pool based memory allocator
-ii  libtasn1-6:amd64                    4.19.0-3ubuntu0.24.04.1           amd64        Manage ASN.1 structures (runtime)
+ii  libtasn1-6:amd64                    4.19.0-3ubuntu0.24.04.2           amd64        Manage ASN.1 structures (runtime)
 ii  libtermkey1:amd64                   0.22-1                            amd64        library for processing keyboard input
 ii  libtime-duration-perl               1.21-2                            all          module for rounded or exact English expression of durations
 ii  libtimedate-perl                    2.3300-2                          all          collection of modules to manipulate date/time information
@@ -311,13 +311,13 @@ ii  libx32ubsan1                        14.2.0-4ubuntu2~24.04             amd64 
 ii  libxau6:amd64                       1:1.0.9-1build6                   amd64        X11 authorisation library
 ii  libxcb1:amd64                       1.15-1ubuntu2                     amd64        X C Binding
 ii  libxdmcp6:amd64                     1:1.1.3-0ubuntu6                  amd64        X11 Display Manager Control Protocol library
-ii  libxml2:amd64                       2.9.14+dfsg-1.3ubuntu3.6          amd64        GNOME XML library
+ii  libxml2:amd64                       2.9.14+dfsg-1.3ubuntu3.7          amd64        GNOME XML library
 ii  libxxhash0:amd64                    0.8.2-2build1                     amd64        shared library for xxhash
 ii  libyaml-0-2:amd64                   0.2.5-1build1                     amd64        Fast YAML 1.1 parser and emitter library
 ii  libzstd-dev:amd64                   1.5.5+dfsg2-2build1.1             amd64        fast lossless compression algorithm -- development files
 ii  libzstd1:amd64                      1.5.5+dfsg2-2build1.1             amd64        fast lossless compression algorithm
 ii  linux-libc-dev-riscv64-cross        6.8.0-25.25cross1                 all          Linux Kernel Headers for development (for cross-compiling)
-ii  linux-libc-dev:amd64                6.8.0-90.91                       amd64        Linux Kernel Headers for development
+ii  linux-libc-dev:amd64                6.8.0-94.96                       amd64        Linux Kernel Headers for development
 ii  login                               1:4.13+dfsg1-4ubuntu3.2           amd64        system login tools
 ii  logsave                             1.47.0-2.4~exp1ubuntu4.1          amd64        save the output of a command in a log file
 ii  lsb-release                         12.0-2                            all          Linux Standard Base version reporting utility (minimal implementation)
@@ -342,7 +342,7 @@ ii  neovim                              0.9.5-6ubuntu2                    amd64 
 ii  neovim-runtime                      0.9.5-6ubuntu2                    all          heavily refactored vim fork (runtime files)
 ii  netbase                             6.4                               all          Basic TCP/IP networking system
 ii  ninja-build                         1.11.1-2                          amd64        small build system closest in spirit to Make
-ii  openssl                             3.0.13-0ubuntu3.6                 amd64        Secure Sockets Layer toolkit - cryptographic utility
+ii  openssl                             3.0.13-0ubuntu3.7                 amd64        Secure Sockets Layer toolkit - cryptographic utility
 ii  p7zip                               16.02+transitional.1              all          transitional package
 ii  parallel                            20231122+ds-1                     all          build and execute command lines from standard input in parallel
 ii  passwd                              1:4.13+dfsg1-4ubuntu3.2           amd64        change and administer password and group data
@@ -359,7 +359,7 @@ ii  python2.7-minimal                   2.7.18-8+deb11u1                  amd64 
 ii  python3                             3.12.3-0ubuntu2.1                 amd64        interactive high-level object-oriented language (default python3 version)
 ii  python3-argcomplete                 3.1.4-1ubuntu0.1                  all          bash tab completion for argparse (for Python 3)
 ii  python3-minimal                     3.12.3-0ubuntu2.1                 amd64        minimal subset of the Python language (default python3 version)
-ii  python3-pyasn1                      0.4.8-4                           all          ASN.1 library for Python (Python 3 module)
+ii  python3-pyasn1                      0.4.8-4ubuntu0.1                  all          ASN.1 library for Python (Python 3 module)
 ii  python3-pycryptodome                3.20.0+dfsg-1                     amd64        cryptographic Python library (Python 3)
 ii  python3-pycurl                      7.45.3-1build2                    amd64        Python bindings to libcurl (Python 3)
 ii  python3-pyelftools                  0.30-1                            all          pure-python3 library for parsing ELF and DWARF
@@ -369,14 +369,14 @@ ii  python3-tomli-w                     1.0.0-2                           all   
 ii  python3-xmltodict                   0.13.0-1ubuntu0.24.04.1           all          Makes working with XML feel like you are working with JSON (Python 3)
 ii  python3-yaml                        6.0.1-2build2                     amd64        YAML parser and emitter for Python3
 ii  python3-zstd                        1.5.5.1-1build1                   amd64        python bindings to Yann Collet ZSTD compression library
-ii  python3.12                          3.12.3-1ubuntu0.9                 amd64        Interactive high-level object-oriented language (version 3.12)
-ii  python3.12-minimal                  3.12.3-1ubuntu0.9                 amd64        Minimal subset of the Python language (version 3.12)
+ii  python3.12                          3.12.3-1ubuntu0.10                amd64        Interactive high-level object-oriented language (version 3.12)
+ii  python3.12-minimal                  3.12.3-1ubuntu0.10                amd64        Minimal subset of the Python language (version 3.12)
 ii  re2c                                3.1-1build1                       amd64        lexer generator for C, C++, Go and Rust
 ii  readline-common                     8.2-4build1                       all          GNU readline and history libraries, common files
 ii  ripgrep                             14.1.0-1                          amd64        Recursively searches directories for a regex pattern
 ii  rpcsvc-proto                        1.4.2-0ubuntu7                    amd64        RPC protocol compiler and definitions
 ii  rsync                               3.2.7-1ubuntu1.2                  amd64        fast, versatile, remote (and local) file-copying tool
-ii  screen                              4.9.1-1build1                     amd64        terminal multiplexer with VT100/ANSI terminal emulation
+ii  screen                              4.9.1-1ubuntu1                    amd64        terminal multiplexer with VT100/ANSI terminal emulation
 ii  sed                                 4.9-2build1                       amd64        GNU stream editor for filtering/transforming text
 ii  sensible-utils                      0.0.22                            all          Utilities for sensible alternative selection
 ii  socat                               1.8.0.0-4build3                   amd64        multipurpose relay for bidirectional data transfer
@@ -411,7 +411,7 @@ ii  zstd                                1.5.5+dfsg2-2build1.1             amd64 
 ||/ Name                                Version                           Architecture Description
 
 Packages sorted by Installed-Size:
-  1156976 ===== TOTAL (390 packages)
+  1156983 ===== TOTAL (390 packages)
     76943 valgrind                                 amd64
     61804 gcc-13-riscv64-linux-gnu                 amd64
     61333 gcc-13-x86-64-linux-gnu                  amd64
@@ -437,19 +437,19 @@ Packages sorted by Installed-Size:
     12004 libc6-x32                                amd64
     11989 libc6-i386                               amd64
     11549 binutils-x86-64-linux-gnu                amd64
-    11179 libc6-dbg                                amd64
+    11174 libc6-dbg                                amd64
     10984 cmake-data                               all
     10791 libasan8                                 amd64
      9704 libx32asan8                              amd64
      9539 lib32asan8                               amd64
      9421 binutils-riscv64-linux-gnu               amd64
-     9021 libpython3.12-stdlib                     amd64
+     9022 libpython3.12-stdlib                     amd64
      8919 libpython3.12t64                         amd64
      8902 libtsan2                                 amd64
      8335 libmagic-mgc                             amd64
      8296 lib32gcc-13-dev                          amd64
      8119 libc6-dev-x32                            amd64
-     7922 python3.12-minimal                       amd64
+     7926 python3.12-minimal                       amd64
      7913 perl-base                                amd64
      7531 libx32gcc-13-dev                         amd64
      7494 linux-libc-dev                           amd64
@@ -460,7 +460,7 @@ Packages sorted by Installed-Size:
      6947 libc6-dev-i386                           amd64
      6944 coreutils                                amd64
      6775 neovim                                   amd64
-     6608 libssl3t64                               amd64
+     6613 libssl3t64                               amd64
      6237 dpkg                                     amd64
      6158 7zip                                     amd64
      5219 bat                                      amd64
@@ -508,7 +508,7 @@ Packages sorted by Installed-Size:
      2183 libc-bin                                 amd64
      2162 git-man                                  all
      2103 strace                                   amd64
-     2079 libxml2                                  amd64
+     2080 libxml2                                  amd64
      2032 libisl23                                 amd64
      2009 universal-ctags                          amd64
      1980 aria2                                    amd64
@@ -576,7 +576,7 @@ Packages sorted by Installed-Size:
       553 gcc-13                                   amd64
       552 findutils                                amd64
       543 libgmp10                                 amd64
-      540 libldap2                                 amd64
+      541 libldap2                                 amd64
       538 libext2fs2t64                            amd64
       536 zip                                      amd64
       521 curl                                     amd64

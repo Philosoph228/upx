@@ -784,16 +784,16 @@ struct alignas(1) TestCT final {
         return upx::align_up_gap(p, a);
     }
 
-    static noinline upx_ptraddr_t noinline_align_down(upx_ptraddr_t p) noexcept {
+    static noinline upx_ptraddr_t noinline_align_down_16(upx_ptraddr_t p) noexcept {
         return upx::align_down(p, upx_ptraddr_t(16));
     }
-    static noinline upx_ptraddr_t noinline_align_down_gap(upx_ptraddr_t p) noexcept {
+    static noinline upx_ptraddr_t noinline_align_down_gap_16(upx_ptraddr_t p) noexcept {
         return upx::align_down_gap(p, upx_ptraddr_t(16));
     }
-    static noinline upx_ptraddr_t noinline_align_up(upx_ptraddr_t p) noexcept {
+    static noinline upx_ptraddr_t noinline_align_up_16(upx_ptraddr_t p) noexcept {
         return upx::align_up(p, upx_ptraddr_t(16));
     }
-    static noinline upx_ptraddr_t noinline_align_up_gap(upx_ptraddr_t p) noexcept {
+    static noinline upx_ptraddr_t noinline_align_up_gap_16(upx_ptraddr_t p) noexcept {
         return upx::align_up_gap(p, upx_ptraddr_t(16));
     }
 };
@@ -1070,10 +1070,10 @@ TEST_CASE("upx::compile_time 3") {
     assert_noexcept(TestCT::noinline_align_down_gap(p, 8) == 1);
     assert_noexcept(TestCT::noinline_align_up(p, 8) == 8);
     assert_noexcept(TestCT::noinline_align_up_gap(p, 8) == 7);
-    assert_noexcept(TestCT::noinline_align_down(p) == 0);
-    assert_noexcept(TestCT::noinline_align_down_gap(p) == 1);
-    assert_noexcept(TestCT::noinline_align_up(p) == 16);
-    assert_noexcept(TestCT::noinline_align_up_gap(p) == 15);
+    assert_noexcept(TestCT::noinline_align_down_16(p) == 0);
+    assert_noexcept(TestCT::noinline_align_down_gap_16(p) == 1);
+    assert_noexcept(TestCT::noinline_align_up_16(p) == 16);
+    assert_noexcept(TestCT::noinline_align_up_gap_16(p) == 15);
 }
 
 /*************************************************************************
