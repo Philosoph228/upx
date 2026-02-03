@@ -64,11 +64,12 @@ jobs:
       - name: Rebuild and verify stubs
         run: |
           export PATH="$(readlink -en ../deps/bin-upx-20221212):$PATH"
+          rm -rf ./src/stub/[!p]*.h
+          ls -ld ./src/stub/*.h || true
           make -C src/stub maintainer-clean extra-clean
           ls -ld ./src/stub/*.h || true
-          rm -rf ./src/stub/[a-o]*.h ./src/stub/[r-z]*.h
-          #rm -rf ./src/stub/*.h
-          ls -ld ./src/stub/*.h || true
+          ls -ld ./src/stub/*.exe || true
+          ls -la ./src/stub/ || true
           git status || true # make sure the stub files got deleted
           make -C src/stub extra-all all
           if ! git diff --quiet; then git diff; exit 1; fi
