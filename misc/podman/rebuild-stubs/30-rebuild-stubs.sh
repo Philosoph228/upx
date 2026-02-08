@@ -34,7 +34,7 @@ cd /home/upx/src/upx
 make -C doc clean all
 # rebuild stubs
 cd /home/upx/src/upx/src/stub
-rm -f ./[!p]*.h
+rm -f ./*.h
 make maintainer-clean extra-clean
 git status . || true # make sure the stub files got deleted
 make extra-all all

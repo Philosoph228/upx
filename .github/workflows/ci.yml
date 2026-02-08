@@ -64,7 +64,7 @@ jobs:
       - name: Rebuild and verify stubs
         run: |
           export PATH="$(readlink -en ../deps/bin-upx-20221212):$PATH"
-          rm -rf ./src/stub/[!p]*.h
+          rm -rf ./src/stub/*.h
           ls -ld ./src/stub/*.h || true
           make -C src/stub maintainer-clean extra-clean
           ls -ld ./src/stub/*.h || true
