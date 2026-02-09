@@ -35,7 +35,7 @@
         lui bits,0x80000  // (1<<31): empty; force refill
         li disp,-1  // initial displacement
 
-.if DEBUG_NRV  //{
+#if DEBUG_NRV  //{
         mv dst0,dst
         mv src0,src
         mov hi_rov,sp

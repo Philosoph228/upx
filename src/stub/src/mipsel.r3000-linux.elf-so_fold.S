@@ -250,7 +250,7 @@ tryDevMem:
         li v0,__NR_open; syscall
         bgez a3,OKmemfd  # success
           nop
-        bkpt  # failure of both memfd_create and /dev/mem
+        bkpt  # failure of both memfd_create and /dev/shm
 OKmemfd:
         jr ra
 
