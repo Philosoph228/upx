@@ -48,7 +48,7 @@
 lit_n2b:
         addi src,src,1; sb pre8,(dst)
         addi dst,dst,1
-#top_n2b:
+top_n2b:
         lbu pre8,(src)  # prefetch: literal, or bottom 8 bits of offset
         jnextb1yp lit_n2b
 #define off val
