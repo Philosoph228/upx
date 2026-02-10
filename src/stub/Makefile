@@ -2389,15 +2389,17 @@ ifneq ($(strip $(EXTRA_MAKEFILES)),)
 EXTRA_MAKEFILES.targets :=
 EXTRA_MAKEFILES.targets += $(addsuffix .~all,$(sort $(EXTRA_MAKEFILES)))
 EXTRA_MAKEFILES.targets += $(addsuffix .~clean,$(sort $(EXTRA_MAKEFILES)))
+EXTRA_MAKEFILES.targets += $(addsuffix .~maintainer-clean,$(sort $(EXTRA_MAKEFILES)))
 
 $(EXTRA_MAKEFILES.targets): MAKEFLAGS += --no-print-directory
 $(EXTRA_MAKEFILES.targets): $$(basename $$@)
 	$(MAKE) -C $(dir $@) -f $(basename $(notdir $@)) $(subst .~,,$(suffix $@))
 
-extra-all:   $$(filter %.~all,$$(EXTRA_MAKEFILES.targets))
-extra-clean: $$(filter %.~clean,$$(EXTRA_MAKEFILES.targets))
+extra-all:              $$(filter %.~all,$$(EXTRA_MAKEFILES.targets))
+extra-clean:            $$(filter %.~clean,$$(EXTRA_MAKEFILES.targets))
+extra-maintainer-clean: $$(filter %.~maintainer-clean,$$(EXTRA_MAKEFILES.targets))
 
-.PHONY: extra-all extra-clean $(EXTRA_MAKEFILES.targets)
+.PHONY: extra-all extra-clean extra-maintainer-clean $(EXTRA_MAKEFILES.targets)
 endif
 
 # vim:set ts=8 sw=8 noet:

@@ -73,6 +73,9 @@ static_assert(sizeof(void *) == sizeof(long));
 #endif
 #define ACC_CFG_PREFER_TYPEOF_ACC_INT32E_T ACC_TYPEOF_INT
 #define ACC_CFG_PREFER_TYPEOF_ACC_INT64E_T ACC_TYPEOF_LONG_LONG
+#if defined(_M_ARM64EC) || defined(__arm64ec__)
+#define ACC_CFG_NO_INLINE_ASM 1
+#endif
 #include "miniacc.h"
 
 // disable some pedantic warnings
