@@ -60,7 +60,7 @@ jobs:
           git config --global --add safe.directory '*' # needed when running in a container
           git clone --branch "$GITHUB_REF_NAME" --depth 1 "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" .
           git submodule update --init -- vendor/lzma-sdk
-          git fsck --strict --no-progress
+          git fsck --strict
       - name: Rebuild and verify stubs
         run: |
           export PATH="$(readlink -en ../deps/bin-upx-20221212):$PATH"

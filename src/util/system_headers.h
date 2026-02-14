@@ -76,6 +76,8 @@ static_assert(sizeof(void *) == sizeof(long));
 #if defined(_M_ARM64EC) || defined(__arm64ec__)
 #define ACC_CFG_NO_INLINE_ASM 1
 #endif
+#define ACC_CFG_NO_SYSCALL   1
+#define ACC_CFG_NO_UNALIGNED 1
 #include "miniacc.h"
 
 // disable some pedantic warnings
