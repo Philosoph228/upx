@@ -26,8 +26,15 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { target: g++-riscv64-linux-gnu }
-          - { target: g++-s390x-linux-gnu }
+          - { target: g++-alpha-linux-gnu, qemu: qemu-alpha }
+          - { target: g++-hppa-linux-gnu, qemu: qemu-hppa }
+          - { target: g++-m68k-linux-gnu, qemu: qemu-m68k }
+          - { target: g++-mips64-linux-gnuabi64, qemu: qemu-mips64 }
+          - { target: g++-mips64el-linux-gnuabi64, qemu: qemu-mips64el }
+          - { target: g++-riscv64-linux-gnu, qemu: qemu-riscv64 }
+          - { target: g++-s390x-linux-gnu, qemu: qemu-s390x }
+          - { target: g++-sh4-linux-gnu, qemu: qemu-sh4 }
+          - { target: g++-sparc64-linux-gnu, qemu: qemu-sparc64 }
     runs-on: ubuntu-latest
     container: ubuntu:24.04
     steps:
@@ -35,7 +42,7 @@ jobs:
       - name: Install packages
         run: |
           apt-get update && apt-get upgrade -y
-          apt-get install -y --no-install-recommends bash ca-certificates cmake curl git make parallel tar time xz-utils zstd
+          apt-get install -y --no-install-recommends bash ca-certificates cmake curl file git make parallel tar time util-linux xz-utils zstd
           apt-get install -y qemu-user ${{ matrix.target }}
       - run: dpkg -l
       - name: Check out code
@@ -48,25 +55,40 @@ jobs:
 
       - name: Make
         run: |
-          toolchain=${{ matrix.target }}
+          toolchain="${{ matrix.target }}"
           toolchain=${toolchain/-x86-64/-x86_64}
           toolchain=${toolchain/#g++-/}
           case $toolchain in
               mingw-w64-i686) toolchain=i686-w64-mingw32 ;;
               mingw-w64-x86_64) toolchain=x86_64-w64-mingw32 ;;
           esac
+          echo "toolchain=$toolchain" >> $GITHUB_ENV
           echo "========== $toolchain"
           export CC=/usr/bin/${toolchain}-gcc
           export CXX=/usr/bin/${toolchain}-g++
           export CMAKE_AR=/usr/bin/${toolchain}-ar
           export CMAKE_RANLIB=/usr/bin/${toolchain}-ranlib
+          case $toolchain in
+              # these old architectures do not support sanitize
+              alpha-linux-gnu) export UPX_CONFIG_DISABLE_SANITIZE=ON ;;
+              hppa-linux-gnu) export UPX_CONFIG_DISABLE_SANITIZE=ON ;;
+              # avoid sanitize link errors with current MinGW-w64 versions; link libstdc++ statically
+              i686-w64-mingw32)
+                  export UPX_CONFIG_DISABLE_SANITIZE=ON
+                  CC="$CC -static"; CXX="$CXX -static" ;;
+              x86_64-w64-mingw32)
+                  export UPX_CONFIG_DISABLE_SANITIZE=ON
+                  CC="$CC -static"; CXX="$CXX -static" ;;
+              # avoid warnings about arm libstdc++ ABI change in gcc-7
+              arm-linux-*) CXX="$CXX -Wno-psabi" ;;
+          esac
           make UPX_XTARGET=xtarget/${toolchain} xtarget/all
 
       - run: ls -l build/*/*/*/upx* || true
       - run: file  build/*/*/*/upx* || true
       - name: Make artifact
         run: |
-          N=$(echo "upx-${GITHUB_REF_NAME}-${GITHUB_SHA:0:7}-${{ matrix.target }}" | sed 's/[^0-9a-zA-Z_.-]/-/g')
+          N=$(echo "upx-${GITHUB_REF_NAME}-${GITHUB_SHA:0:7}-${{ matrix.target }}" | sed 's/[^0-9a-zA-Z_.+-]/-/g')
           mkdir -p "tmp/artifact/$N"
           (cd build && shopt -s nullglob && cp -v -ai --parents */upx{,.exe} */*/*/upx{,.exe} "../tmp/artifact/$N")
           (cd build && shopt -s globstar && cp -v -ai --parents **/dt_cxxlib.* "../tmp/artifact/$N")
@@ -76,3 +98,33 @@ jobs:
       - name: ${{ format('Upload artifact {0}', env.artifact_name) }}
         uses: actions/upload-artifact@v6
         with: { name: '${{ env.artifact_name }}', path: tmp/artifact }
+
+      - name: Mimic ctest tests
+        if: ${{ matrix.qemu }}
+        run: |
+          export UPX_CONFIG_DISABLE_SELF_PACK_TEST=ON
+          export upx_exe_runner="${{ matrix.qemu }}"
+          upx_exe_runner="$upx_exe_runner -L /usr/${toolchain}"
+          UPX_DEBUG_DOCTEST_VERBOSE=1 $upx_exe_runner ./build/xtarget/${toolchain}/debug/upx --version-short || true
+          UPX_DEBUG_DOCTEST_VERBOSE=1 $upx_exe_runner ./build/xtarget/${toolchain}/release/upx --version-short || true
+          UPX_DEBUG_DOCTEST_VERBOSE=0 $upx_exe_runner ./build/xtarget/${toolchain}/debug/upx --sysinfo -vv || true
+          UPX_DEBUG_DOCTEST_VERBOSE=0 $upx_exe_runner ./build/xtarget/${toolchain}/release/upx --sysinfo -vv || true
+          jobs="${toolchain}/debug ${toolchain}/release"
+          [[ $toolchain == "alpha-linux-gnu" ]] && jobs="${toolchain}/release"
+          echo "===== parallel jobs: $jobs"
+          parallel -kv --lb 'cd build/xtarget/{} && bash ../../../../misc/testsuite/mimic_ctest.sh' ::: $jobs
+          ls -ld ./build/*/*/*/upx-* || true
+          rm -rf ./build/*/*/*/upx-*
+
+      - name: Run test suite
+        if: ${{ matrix.qemu }}
+        run: |
+          export upx_exe_runner="${{ matrix.qemu }}"
+          upx_exe_runner="$upx_exe_runner -L /usr/${toolchain}"
+          export upx_testsuite_SRCDIR="$(readlink -en ../deps/upx-testsuite)"
+          jobs="${toolchain}/debug ${toolchain}/release"
+          [[ $toolchain == "alpha-linux-gnu" ]] && jobs="${toolchain}/release"
+          echo "===== parallel jobs: $jobs"
+          parallel -kv --lb 'cd build/xtarget/{} && bash ../../../../misc/testsuite/upx_testsuite_1.sh' ::: $jobs
+          ls -ld ./build/*/*/*/tmp-upx-testsuite* || true
+          rm -rf ./build/*/*/*/tmp-upx-testsuite*
