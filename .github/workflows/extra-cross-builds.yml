@@ -1,6 +1,6 @@
 # Copyright (C) Markus Franz Xaver Johannes Oberhumer
 
-name: Extra Cross Build
+name: Extra Cross Builds
 
 on: [workflow_dispatch]
 
@@ -20,8 +20,8 @@ env:
   ZSTD_CLEVEL: 17
 
 jobs:
-  job-extra-cross-build:
-    name: Extra Cross Build
+  job-extra-cross-builds:
+    name: Extra Cross Builds
     strategy:
       fail-fast: false
       matrix:
@@ -59,8 +59,8 @@ jobs:
           toolchain=${toolchain/-x86-64/-x86_64}
           toolchain=${toolchain/#g++-/}
           case $toolchain in
-              mingw-w64-i686) toolchain=i686-w64-mingw32 ;;
-              mingw-w64-x86_64) toolchain=x86_64-w64-mingw32 ;;
+            mingw-w64-i686) toolchain=i686-w64-mingw32 ;;
+            mingw-w64-x86_64) toolchain=x86_64-w64-mingw32 ;;
           esac
           echo "toolchain=$toolchain" >> $GITHUB_ENV
           echo "========== $toolchain"
@@ -69,18 +69,18 @@ jobs:
           export CMAKE_AR=/usr/bin/${toolchain}-ar
           export CMAKE_RANLIB=/usr/bin/${toolchain}-ranlib
           case $toolchain in
-              # these old architectures do not support sanitize
-              alpha-linux-gnu) export UPX_CONFIG_DISABLE_SANITIZE=ON ;;
-              hppa-linux-gnu) export UPX_CONFIG_DISABLE_SANITIZE=ON ;;
-              # avoid sanitize link errors with current MinGW-w64 versions; link libstdc++ statically
-              i686-w64-mingw32)
-                  export UPX_CONFIG_DISABLE_SANITIZE=ON
-                  CC="$CC -static"; CXX="$CXX -static" ;;
-              x86_64-w64-mingw32)
-                  export UPX_CONFIG_DISABLE_SANITIZE=ON
-                  CC="$CC -static"; CXX="$CXX -static" ;;
-              # avoid warnings about arm libstdc++ ABI change in gcc-7
-              arm-linux-*) CXX="$CXX -Wno-psabi" ;;
+            # these old architectures do not support sanitize
+            alpha-linux-gnu) export UPX_CONFIG_DISABLE_SANITIZE=ON ;;
+            hppa-linux-gnu) export UPX_CONFIG_DISABLE_SANITIZE=ON ;;
+            # avoid sanitize link errors with current MinGW-w64 versions; link libstdc++ statically
+            i686-w64-mingw32)
+              export UPX_CONFIG_DISABLE_SANITIZE=ON
+              CC="$CC -static"; CXX="$CXX -static" ;;
+            x86_64-w64-mingw32)
+              export UPX_CONFIG_DISABLE_SANITIZE=ON
+              CC="$CC -static"; CXX="$CXX -static" ;;
+            # avoid warnings about arm libstdc++ ABI change in gcc-7
+            arm-linux-*) CXX="$CXX -Wno-psabi" ;;
           esac
           make UPX_XTARGET=xtarget/${toolchain} xtarget/all
 
@@ -102,7 +102,7 @@ jobs:
       - name: Mimic ctest tests
         if: ${{ matrix.qemu }}
         run: |
-          export UPX_CONFIG_DISABLE_SELF_PACK_TEST=ON
+          [[ $toolchain != "riscv64-linux-gnu" ]] && export UPX_CONFIG_DISABLE_SELF_PACK_TEST=ON
           export upx_exe_runner="${{ matrix.qemu }}"
           upx_exe_runner="$upx_exe_runner -L /usr/${toolchain}"
           UPX_DEBUG_DOCTEST_VERBOSE=1 $upx_exe_runner ./build/xtarget/${toolchain}/debug/upx --version-short || true
