@@ -1234,7 +1234,7 @@ void upx_compiler_sanity_check() noexcept {
 #endif
 #if DEBUG >= 1
     {
-        for (int i = 0; i < 256; i++) {
+        for (int i = -256; i < 256; i++) {
             {
                 const unsigned u = i;
                 assert_noexcept(sign_extend32(u, 1) == ((i & 1) ? -1 : 0));

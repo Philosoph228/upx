@@ -26,6 +26,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # { container: 'ubuntu:22.04', target: g++-aarch64-linux-gnu, qemu: qemu-aarch64 }
+          # { container: 'ubuntu:22.04', target: g++-arm-linux-gnueabi, qemu: qemu-arm }
+          # { container: 'ubuntu:22.04', target: g++-arm-linux-gnueabihf, qemu: qemu-arm }
+          # { container: 'ubuntu:22.04', target: g++-i686-linux-gnu, qemu: qemu-i386 }
+          # { container: 'ubuntu:22.04', target: g++-mips-linux-gnu, qemu: qemu-mips }
+          # { container: 'ubuntu:22.04', target: g++-mipsel-linux-gnu, qemu: qemu-mipsel }
+          # { container: 'ubuntu:22.04', target: g++-powerpc-linux-gnu, qemu: qemu-ppc }
+          # { container: 'ubuntu:22.04', target: g++-powerpc64-linux-gnu, qemu: qemu-ppc64 }
+          # { container: 'ubuntu:22.04', target: g++-powerpc64le-linux-gnu, qemu: qemu-ppc64le }
+
           - { container: 'ubuntu:22.04', target: g++-alpha-linux-gnu, qemu: qemu-alpha }
           # { container: 'ubuntu:22.04', target: g++-arc-linux-gnu }
           - { container: 'ubuntu:22.04', target: g++-hppa-linux-gnu, qemu: qemu-hppa }
@@ -69,7 +79,7 @@ jobs:
       - name: Install packages
         run: |
           apt-get update && apt-get upgrade -y
-          apt-get install -y --no-install-recommends bash ca-certificates cmake curl file git make parallel tar time util-linux xz-utils zstd
+          apt-get install -y --no-install-recommends bash ca-certificates cmake curl file git make parallel tar time tree util-linux xz-utils zstd
           apt-get install -y qemu-user ${{ matrix.target }}
       - run: dpkg -l
       - name: Check out code
@@ -126,10 +136,24 @@ jobs:
         uses: actions/upload-artifact@v6
         with: { name: '${{ env.artifact_name }}', path: tmp/artifact }
 
-      - name: Mimic ctest tests
+      - name: ${{ format('Inspect /usr/{0}', env.toolchain) }}
+        run: |
+          echo "/usr/${toolchain}"
+          set -x
+          ls -laF /usr
+          ls -laF /usr/${toolchain}
+          ls -laF /usr/${toolchain}/bin
+          ls -laF /usr/${toolchain}/lib*
+          tree -sF -d --du /usr/${toolchain}
+          tree -sF    --du /usr/${toolchain}
+          find /usr/${toolchain} -type f -print0 | LC_ALL=C sort -z | xargs -0r ls -ldF
+
+      - name: ${{ format('Mimic ctest tests with QEMU {0}', matrix.qemu) }}
         if: ${{ matrix.qemu }}
         run: |
-          [[ $toolchain != "riscv64-linux-gnu" ]] && export UPX_CONFIG_DISABLE_SELF_PACK_TEST=ON
+          export UPX_CONFIG_DISABLE_SELF_PACK_TEST=ON
+          [[ $toolchain == "aarch64-linux-gnu" ]] && export UPX_CONFIG_DISABLE_SELF_PACK_TEST=OFF
+          [[ $toolchain == "riscv64-linux-gnu" ]] && export UPX_CONFIG_DISABLE_SELF_PACK_TEST=OFF
           export upx_exe_runner="${{ matrix.qemu }}"
           upx_exe_runner="$upx_exe_runner -L /usr/${toolchain}"
           UPX_DEBUG_DOCTEST_VERBOSE=1 $upx_exe_runner ./build/xtarget/${toolchain}/debug/upx --version-short || true
@@ -144,7 +168,7 @@ jobs:
           ls -ld ./build/*/*/*/upx-* || true
           rm -rf ./build/*/*/*/upx-*
 
-      - name: Run test suite
+      - name: ${{ format('Run test suite with QEMU {0}', matrix.qemu) }}
         if: ${{ matrix.qemu }}
         run: |
           export upx_exe_runner="${{ matrix.qemu }}"

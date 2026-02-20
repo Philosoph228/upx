@@ -830,6 +830,16 @@ struct alignas(1) TestXE final {
     static noinline void noinline_set_le32(byte * p, upx_uint32_t v) noexcept { set_le32(p, v); }
     static noinline void noinline_set_le64(byte * p, upx_uint64_t v) noexcept { set_le64(p, v); }
 
+    static noinline int noinline_sign_extend32(unsigned v, unsigned bits) noexcept {
+        return sign_extend32(v, bits);
+    }
+    static noinline upx_int64_t noinline_sign_extend64(upx_uint64_t v, unsigned bits) noexcept {
+        return sign_extend64(v, bits);
+    }
+
+    static noinline int noinline_sign_extend32_4(unsigned v) noexcept {
+        return sign_extend32(v, 4);
+    }
     static noinline int noinline_sign_extend32_8(unsigned v) noexcept {
         return sign_extend32(v, 8);
     }
@@ -841,6 +851,9 @@ struct alignas(1) TestXE final {
     }
     static noinline int noinline_sign_extend32_32(unsigned v) noexcept {
         return sign_extend32(v, 32);
+    }
+    static noinline upx_int64_t noinline_sign_extend64_4(upx_uint64_t v) noexcept {
+        return sign_extend64(v, 4);
     }
     static noinline upx_int64_t noinline_sign_extend64_8(upx_uint64_t v) noexcept {
         return sign_extend64(v, 8);
@@ -1098,18 +1111,27 @@ TEST_CASE("upx::compile_time 2b") {
         assert_noexcept(memcmp(buf1, buf2, 8) == 0);
     }
     {
-        for (int i = 0; i < 16; i++) {
-            const unsigned u = i;
-            assert_noexcept(TestXE::noinline_sign_extend32_8(u) == i);
-            assert_noexcept(TestXE::noinline_sign_extend32_16(u) == i);
-            assert_noexcept(TestXE::noinline_sign_extend32_24(u) == i);
-            assert_noexcept(TestXE::noinline_sign_extend32_32(u) == i);
-            assert_noexcept(TestXE::noinline_sign_extend64_8(u) == i);
-            assert_noexcept(TestXE::noinline_sign_extend64_16(u) == i);
-            assert_noexcept(TestXE::noinline_sign_extend64_24(u) == i);
-            assert_noexcept(TestXE::noinline_sign_extend64_32(u) == i);
-            assert_noexcept(TestXE::noinline_sign_extend64_48(u) == i);
-            assert_noexcept(TestXE::noinline_sign_extend64_64(u) == i);
+        for (int i = -8; i < 8; i++) {
+            {
+                const unsigned u = i;
+                assert_noexcept(TestXE::noinline_sign_extend32(u, 4 + (i & 1)) == i);
+                assert_noexcept(TestXE::noinline_sign_extend32_4(u) == i);
+                assert_noexcept(TestXE::noinline_sign_extend32_8(u) == i);
+                assert_noexcept(TestXE::noinline_sign_extend32_16(u) == i);
+                assert_noexcept(TestXE::noinline_sign_extend32_24(u) == i);
+                assert_noexcept(TestXE::noinline_sign_extend32_32(u) == i);
+            }
+            {
+                const upx_uint64_t u = i;
+                assert_noexcept(TestXE::noinline_sign_extend64(u, 4 + (i & 1)) == i);
+                assert_noexcept(TestXE::noinline_sign_extend64_4(u) == i);
+                assert_noexcept(TestXE::noinline_sign_extend64_8(u) == i);
+                assert_noexcept(TestXE::noinline_sign_extend64_16(u) == i);
+                assert_noexcept(TestXE::noinline_sign_extend64_24(u) == i);
+                assert_noexcept(TestXE::noinline_sign_extend64_32(u) == i);
+                assert_noexcept(TestXE::noinline_sign_extend64_48(u) == i);
+                assert_noexcept(TestXE::noinline_sign_extend64_64(u) == i);
+            }
         }
     }
 }
