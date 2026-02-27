@@ -380,7 +380,8 @@ jobs:
           for d in $dirs; do DESTDIR="$PWD/tmp/artifact/$N/InstallWithCMake/InstallWithDestdirAndStrip/$d" cmake --install build/extra/$d --strip; done
           for d in $dirs; do cmake --install build/extra/$d --prefix "$PWD/tmp/artifact/$N/InstallWithCMake/InstallWithPrefix/$d"; done
           for d in $dirs; do cmake --install build/extra/$d --prefix "$PWD/tmp/artifact/$N/InstallWithCMake/InstallWithPrefixAndStrip/$d" --strip; done
-          (cd build && rsync -R -a */*/*/upx "../tmp/artifact/$N/")
+          (cd build && rsync -v -R -a */*/*/upx "../tmp/artifact/$N/")
+          (cd build && rsync -v -R -a $(find . -type f -name 'dt_cxxlib.*') "../tmp/artifact/$N/")
           hardlink="$HOMEBREW_PREFIX/opt/util-linux/bin/hardlink"
           if test -f "$hardlink"; then (cd "tmp/artifact/$N" && "$hardlink" .) fi
           (cd tmp/artifact && gtar --sort=name --zstd -cf "$N.tar.zst" "$N" && rm -rf "./$N" && ls -la && zstd -tq "$N.tar.zst")
