@@ -133,6 +133,7 @@ jobs:
               CC="$CC -static"; CXX="$CXX -static" ;;
             # avoid warnings about arm libstdc++ ABI change in gcc-7
             arm-linux-*) CXX="$CXX -Wno-psabi" ;;
+            armeb-linux-*) CXX="$CXX -Wno-psabi" ;;
           esac
           make UPX_XTARGET=xtarget/${toolchain} xtarget/all
 
