@@ -2,8 +2,8 @@
 
    This file is part of the UPX executable compressor.
 
-   Copyright (C) 1996-2025 Markus Franz Xaver Johannes Oberhumer
-   Copyright (C) 1996-2025 Laszlo Molnar
+   Copyright (C) Markus Franz Xaver Johannes Oberhumer
+   Copyright (C) Laszlo Molnar
    All Rights Reserved.
 
    UPX and the UCL library are free software; you can redistribute them
@@ -71,7 +71,7 @@ bool mem_size_valid(upx_uint64_t element_size, upx_uint64_t n, upx_uint64_t extr
 }
 
 upx_rsize_t mem_size(upx_uint64_t element_size, upx_uint64_t n, upx_uint64_t extra1,
-                     upx_uint64_t extra2) {
+                     upx_uint64_t extra2) may_throw {
     assert(element_size > 0);
     if very_unlikely (element_size == 0 || element_size > UPX_RSIZE_MAX)
         throwCantPack("mem_size 1; take care");
@@ -88,6 +88,11 @@ upx_rsize_t mem_size(upx_uint64_t element_size, upx_uint64_t n, upx_uint64_t ext
 }
 
 TEST_CASE("mem_size") {
+    mem_size_assert(1, 0);
+    mem_size_assert(1, 0x30000000);
+    CHECK_THROWS(mem_size_assert(1, 0x30000000 + 1));
+    mem_size_assert_noexcept(1, 0);
+    mem_size_assert_noexcept(1, 0x30000000);
     CHECK(mem_size_valid(1, 0));
     CHECK(mem_size_valid(1, 0x30000000));
     CHECK(!mem_size_valid(1, 0x30000000 + 1));
@@ -144,7 +149,8 @@ TEST_CASE("ptr_diff") {
 }
 
 // check that 2 buffers do not overlap; will throw on error
-void ptraddr_check_no_overlap(upx_ptraddr_t a, size_t a_size, upx_ptraddr_t b, size_t b_size) {
+void ptraddr_check_no_overlap(upx_ptraddr_t a, size_t a_size, upx_ptraddr_t b, size_t b_size)
+    may_throw {
     if very_unlikely (a == 0 || b == 0)
         throwCantPack("ptr_check_no_overlap-nullptr");
     upx_ptraddr_t a_end = a + mem_size(1, a_size);
@@ -160,7 +166,7 @@ void ptraddr_check_no_overlap(upx_ptraddr_t a, size_t a_size, upx_ptraddr_t b, s
 
 // check that 3 buffers do not overlap; will throw on error
 void ptraddr_check_no_overlap(upx_ptraddr_t a, size_t a_size, upx_ptraddr_t b, size_t b_size,
-                              upx_ptraddr_t c, size_t c_size) {
+                              upx_ptraddr_t c, size_t c_size) may_throw {
     if very_unlikely (a == 0 || b == 0 || c == 0)
         throwCantPack("ptr_check_no_overlap-nullptr");
     upx_ptraddr_t a_end = a + mem_size(1, a_size);
@@ -253,18 +259,26 @@ TEST_CASE("ptr_check_no_overlap 3") {
 // stdlib
 **************************************************************************/
 
+void *upx_calloc(size_t n, size_t element_size) may_throw {
+    const upx_rsize_t bytes = mem_size(element_size, n); // assert size
+    void *p = ::malloc(bytes);
+    if likely (p != nullptr && bytes > 0)
+        memset(p, 0, bytes);
+    return p;
+}
+
 const char *upx_getenv(const char *envvar) noexcept {
-    if (envvar != nullptr && envvar[0])
+    if likely (envvar != nullptr && envvar[0])
         return ::getenv(envvar);
     return nullptr;
 }
 
 // random value from libc; quality is not important for UPX
-int upx_rand(void) noexcept {
+int upx_rand() noexcept {
     return ::rand(); // NOLINT(clang-analyzer-security.insecureAPI.rand)
 }
 
-void upx_rand_init(void) noexcept {
+void upx_rand_init() noexcept {
     unsigned seed = 0;
     seed ^= UPX_VERSION_HEX;
 #if (!HAVE_GETTIMEOFDAY || (ACC_OS_DOS32 && defined(__DJGPP__))) && !defined(__wasi__)
@@ -280,14 +294,6 @@ void upx_rand_init(void) noexcept {
     seed ^= ((unsigned) getpid()) << 4;
 #endif
     ::srand(seed);
-}
-
-void *upx_calloc(size_t n, size_t element_size) may_throw {
-    size_t bytes = mem_size(element_size, n); // assert size
-    void *p = ::malloc(bytes);
-    if (p != nullptr)
-        memset(p, 0, bytes);
-    return p;
 }
 
 // simple unoptimized memswap()
@@ -378,7 +384,7 @@ void upx_shellsort_memcpy(void *array, size_t n, size_t element_size, upx_compar
     byte *tmp = tmp_buf;
     if (element_size > MAX_INLINE_ELEMENT_SIZE) {
         tmp = (byte *) ::malloc(element_size);
-        assert(tmp != nullptr);
+        assert_noexcept(tmp != nullptr);
     }
     size_t gap = 0;         // 0, 1, 4, 13, 40, 121, 364, 1093, ...
     while (gap * 3 + 1 < n) // cannot overflow because of size check above
@@ -419,6 +425,22 @@ void upx_std_stable_sort(void *array, size_t n, upx_compare_func_t compare) {
     std::stable_sort((element_type *) array, (element_type *) array + n, less);
 #endif
 }
+
+#if UPX_CONFIG_USE_STABLE_SORT
+// instantiate function templates for all element sizes we need; efficient
+// run-time, but code size bloat (about 4KiB code size for each function
+// with my current libstdc++); not really needed as libc qsort() is
+// good enough for our use cases
+template void upx_std_stable_sort<1>(void *, size_t, upx_compare_func_t);
+template void upx_std_stable_sort<2>(void *, size_t, upx_compare_func_t);
+template void upx_std_stable_sort<4>(void *, size_t, upx_compare_func_t);
+template void upx_std_stable_sort<5>(void *, size_t, upx_compare_func_t);
+template void upx_std_stable_sort<8>(void *, size_t, upx_compare_func_t);
+template void upx_std_stable_sort<16>(void *, size_t, upx_compare_func_t);
+template void upx_std_stable_sort<32>(void *, size_t, upx_compare_func_t);
+template void upx_std_stable_sort<56>(void *, size_t, upx_compare_func_t);
+template void upx_std_stable_sort<72>(void *, size_t, upx_compare_func_t);
+#endif // UPX_CONFIG_USE_STABLE_SORT
 
 TEST_CASE("upx_memswap") {
     auto check4 = [](int off1, int off2, int len, int a, int b, int c, int d) {
@@ -472,22 +494,6 @@ TEST_CASE("upx_memswap") {
         CHECK(*array[3] == 22);
     }
 }
-
-#if UPX_CONFIG_USE_STABLE_SORT
-// instantiate function templates for all element sizes we need; efficient
-// run-time, but code size bloat (about 4KiB code size for each function
-// with my current libstdc++); not really needed as libc qsort() is
-// good enough for our use cases
-template void upx_std_stable_sort<1>(void *, size_t, upx_compare_func_t);
-template void upx_std_stable_sort<2>(void *, size_t, upx_compare_func_t);
-template void upx_std_stable_sort<4>(void *, size_t, upx_compare_func_t);
-template void upx_std_stable_sort<5>(void *, size_t, upx_compare_func_t);
-template void upx_std_stable_sort<8>(void *, size_t, upx_compare_func_t);
-template void upx_std_stable_sort<16>(void *, size_t, upx_compare_func_t);
-template void upx_std_stable_sort<32>(void *, size_t, upx_compare_func_t);
-template void upx_std_stable_sort<56>(void *, size_t, upx_compare_func_t);
-template void upx_std_stable_sort<72>(void *, size_t, upx_compare_func_t);
-#endif // UPX_CONFIG_USE_STABLE_SORT
 
 #if !defined(DOCTEST_CONFIG_DISABLE) && DEBUG
 #if __cplusplus >= 202002L // use C++20 std::next_permutation() to test all permutations
@@ -561,106 +567,6 @@ TEST_CASE("upx_std_stable_sort") {
 }
 #endif // C++20
 #endif // DEBUG
-
-/*************************************************************************
-// qsort() util
-**************************************************************************/
-
-int __acc_cdecl_qsort be16_compare(const void *e1, const void *e2) {
-    const unsigned d1 = get_be16(e1);
-    const unsigned d2 = get_be16(e2);
-    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
-}
-
-int __acc_cdecl_qsort be24_compare(const void *e1, const void *e2) {
-    const unsigned d1 = get_be24(e1);
-    const unsigned d2 = get_be24(e2);
-    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
-}
-
-int __acc_cdecl_qsort be32_compare(const void *e1, const void *e2) {
-    const unsigned d1 = get_be32(e1);
-    const unsigned d2 = get_be32(e2);
-    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
-}
-
-int __acc_cdecl_qsort be64_compare(const void *e1, const void *e2) {
-    const upx_uint64_t d1 = get_be64(e1);
-    const upx_uint64_t d2 = get_be64(e2);
-    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
-}
-
-int __acc_cdecl_qsort le16_compare(const void *e1, const void *e2) {
-    const unsigned d1 = get_le16(e1);
-    const unsigned d2 = get_le16(e2);
-    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
-}
-
-int __acc_cdecl_qsort le24_compare(const void *e1, const void *e2) {
-    const unsigned d1 = get_le24(e1);
-    const unsigned d2 = get_le24(e2);
-    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
-}
-
-int __acc_cdecl_qsort le32_compare(const void *e1, const void *e2) {
-    const unsigned d1 = get_le32(e1);
-    const unsigned d2 = get_le32(e2);
-    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
-}
-
-int __acc_cdecl_qsort le64_compare(const void *e1, const void *e2) {
-    const upx_uint64_t d1 = get_le64(e1);
-    const upx_uint64_t d2 = get_le64(e2);
-    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
-}
-
-int __acc_cdecl_qsort be16_compare_signed(const void *e1, const void *e2) {
-    const int d1 = get_be16_signed(e1);
-    const int d2 = get_be16_signed(e2);
-    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
-}
-
-int __acc_cdecl_qsort be24_compare_signed(const void *e1, const void *e2) {
-    const int d1 = get_be24_signed(e1);
-    const int d2 = get_be24_signed(e2);
-    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
-}
-
-int __acc_cdecl_qsort be32_compare_signed(const void *e1, const void *e2) {
-    const int d1 = get_be32_signed(e1);
-    const int d2 = get_be32_signed(e2);
-    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
-}
-
-int __acc_cdecl_qsort be64_compare_signed(const void *e1, const void *e2) {
-    const upx_int64_t d1 = get_be64_signed(e1);
-    const upx_int64_t d2 = get_be64_signed(e2);
-    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
-}
-
-int __acc_cdecl_qsort le16_compare_signed(const void *e1, const void *e2) {
-    const int d1 = get_le16_signed(e1);
-    const int d2 = get_le16_signed(e2);
-    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
-}
-
-int __acc_cdecl_qsort le24_compare_signed(const void *e1, const void *e2) {
-    const int d1 = get_le24_signed(e1);
-    const int d2 = get_le24_signed(e2);
-    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
-}
-
-int __acc_cdecl_qsort le32_compare_signed(const void *e1, const void *e2) {
-    const int d1 = get_le32_signed(e1);
-    const int d2 = get_le32_signed(e2);
-    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
-}
-
-int __acc_cdecl_qsort le64_compare_signed(const void *e1, const void *e2) {
-    const upx_int64_t d1 = get_le64_signed(e1);
-    const upx_int64_t d2 = get_le64_signed(e2);
-    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
-}
 
 /*************************************************************************
 // find and mem_replace util
@@ -766,6 +672,106 @@ TEST_CASE("mem_replace") {
     CHECK(mem_replace(b, 16, "b", 1, "h") == 2);
     CHECK(strcmp(b, "cdcdcdcdefgefghh") == 0);
     UNUSED(b);
+}
+
+/*************************************************************************
+// qsort() util
+**************************************************************************/
+
+int __acc_cdecl_qsort be16_compare(const void *e1, const void *e2) {
+    const unsigned d1 = get_be16(e1);
+    const unsigned d2 = get_be16(e2);
+    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
+}
+
+int __acc_cdecl_qsort be24_compare(const void *e1, const void *e2) {
+    const unsigned d1 = get_be24(e1);
+    const unsigned d2 = get_be24(e2);
+    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
+}
+
+int __acc_cdecl_qsort be32_compare(const void *e1, const void *e2) {
+    const unsigned d1 = get_be32(e1);
+    const unsigned d2 = get_be32(e2);
+    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
+}
+
+int __acc_cdecl_qsort be64_compare(const void *e1, const void *e2) {
+    const upx_uint64_t d1 = get_be64(e1);
+    const upx_uint64_t d2 = get_be64(e2);
+    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
+}
+
+int __acc_cdecl_qsort le16_compare(const void *e1, const void *e2) {
+    const unsigned d1 = get_le16(e1);
+    const unsigned d2 = get_le16(e2);
+    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
+}
+
+int __acc_cdecl_qsort le24_compare(const void *e1, const void *e2) {
+    const unsigned d1 = get_le24(e1);
+    const unsigned d2 = get_le24(e2);
+    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
+}
+
+int __acc_cdecl_qsort le32_compare(const void *e1, const void *e2) {
+    const unsigned d1 = get_le32(e1);
+    const unsigned d2 = get_le32(e2);
+    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
+}
+
+int __acc_cdecl_qsort le64_compare(const void *e1, const void *e2) {
+    const upx_uint64_t d1 = get_le64(e1);
+    const upx_uint64_t d2 = get_le64(e2);
+    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
+}
+
+int __acc_cdecl_qsort be16_compare_signed(const void *e1, const void *e2) {
+    const int d1 = get_be16_signed(e1);
+    const int d2 = get_be16_signed(e2);
+    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
+}
+
+int __acc_cdecl_qsort be24_compare_signed(const void *e1, const void *e2) {
+    const int d1 = get_be24_signed(e1);
+    const int d2 = get_be24_signed(e2);
+    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
+}
+
+int __acc_cdecl_qsort be32_compare_signed(const void *e1, const void *e2) {
+    const int d1 = get_be32_signed(e1);
+    const int d2 = get_be32_signed(e2);
+    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
+}
+
+int __acc_cdecl_qsort be64_compare_signed(const void *e1, const void *e2) {
+    const upx_int64_t d1 = get_be64_signed(e1);
+    const upx_int64_t d2 = get_be64_signed(e2);
+    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
+}
+
+int __acc_cdecl_qsort le16_compare_signed(const void *e1, const void *e2) {
+    const int d1 = get_le16_signed(e1);
+    const int d2 = get_le16_signed(e2);
+    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
+}
+
+int __acc_cdecl_qsort le24_compare_signed(const void *e1, const void *e2) {
+    const int d1 = get_le24_signed(e1);
+    const int d2 = get_le24_signed(e2);
+    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
+}
+
+int __acc_cdecl_qsort le32_compare_signed(const void *e1, const void *e2) {
+    const int d1 = get_le32_signed(e1);
+    const int d2 = get_le32_signed(e2);
+    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
+}
+
+int __acc_cdecl_qsort le64_compare_signed(const void *e1, const void *e2) {
+    const upx_int64_t d1 = get_le64_signed(e1);
+    const upx_int64_t d2 = get_le64_signed(e2);
+    return (d1 < d2) ? -1 : ((d1 > d2) ? 1 : 0);
 }
 
 /*************************************************************************

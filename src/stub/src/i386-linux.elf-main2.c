@@ -2,9 +2,9 @@
 
    This file is part of the UPX executable compressor.
 
-   Copyright (C) 1996-2025 Markus Franz Xaver Johannes Oberhumer
-   Copyright (C) 1996-2025 Laszlo Molnar
-   Copyright (C) 2000-2025 John F. Reiser
+   Copyright (C) Markus Franz Xaver Johannes Oberhumer
+   Copyright (C) Laszlo Molnar
+   Copyright (C) John F. Reiser
    All Rights Reserved.
 
    UPX and the UCL library are free software; you can redistribute them
@@ -750,7 +750,7 @@ ssize_t read(int, void *, size_t);
 **************************************************************************/
 
 void *
-upx_main(  // returns entry address
+upx_main2(  // returns entry address
 /*arg1*/    struct b_info const *const bi  // 1st block header
 /*arg2*/    , size_t const sz_compressed  // total length
 /*arg3*/    , ElfW(Addr) elfaddr  // In: &ElfW(Ehdr) for stub
